@@ -8,9 +8,9 @@ function validateUser(req,res,next) {
     })
 
     const result = zodSchema.safeParse(req.body)
-    const errors = result.error.issues.map(issue => issue.message)
 
     if (!result.success) {
+        const errors = result.error.issues.map(issue => issue.message)
         return res.status(400).json({error: errors[0]})
     } 
     next()

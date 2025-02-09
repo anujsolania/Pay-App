@@ -9,7 +9,7 @@ function validateReq(req,res,next) {
     try {
         const verified = jwt.verify(token,jwtkey) 
 
-        req.username = verified.username
+        req.userId = verified.userId
         next()
     } catch (error) {  //throws error if not verified
         res.status(403).json({mssg: "INVALID TOKEN",error: error.message})
