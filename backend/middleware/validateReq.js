@@ -1,8 +1,19 @@
-const { jwt } = require("../jwt/jwt")
+const { jwt, jwtkey } = require("../jwt/jwt")
 
 function validateReq(req,res,next) {
-    const username = req.body.username
+    const token = req.headers.authorization
 
-    const token = jwt.sign({username},jwtkey)
-    res.json({ message: `User signedin succesfully as ${username}`,token })
+    if (!token) {
+        return res.json({mssg: "Signup/Signin first"})
+    }
+    try {
+        const verified = jwt.verify(token,jwtkey) 
+
+        req.username = verified.username
+        next()
+    } catch (error) {  //throws error if not verified
+        res.status(403).json({mssg: "INVALID TOKEN",error: error.message})
+    }
 }
+
+module.exports = validateReq
