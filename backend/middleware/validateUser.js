@@ -3,8 +3,10 @@ const z = require("zod")
 function validateUser(req,res,next) {
 
     const zodSchema = z.object({
-        username: z.string().min(2,{message: "Username must be at least 3 characters long"}),
-        password: z.string().min(6,{message: "Password must be at least 6 characters long"} )
+        firstname: z.string().trim().min(3,{message: "Firstname must be atleast 3 characters long"}),
+        lastname: z.string().trim().min(3,{message: "Firstname must be atleast 3 characters long"}),
+        email: z.string().trim().email({message: "invalid email"}),
+        password: z.string().trim().min(6,{message: "Password must be at least 6 characters long"} )
     })
 
     const result = zodSchema.safeParse(req.body)

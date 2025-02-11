@@ -5,7 +5,9 @@ mongoose.connect("mongodb+srv://anujsolania:scam2022@cluster0.kvu08ja.mongodb.ne
 .catch((error) => {console.error("connection error", error)})
 
 const userSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true},
+    firstname: {type: String, required: true},
+    lastname : {type: String, required: true},
+    email: { type: String, required: true, unique: true},
     password: { type: String, required: true}
 })
 
