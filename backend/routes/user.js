@@ -8,7 +8,8 @@ const userrouter = express.Router()
 
 //SIGNUP
 userrouter.post("/signup",validateUser, async(req,res) => {
-    const email = req.body.email
+    const {firstname,lastname,email,password} = req.body
+
 
     try {
         const result = await User.findOne({email})
@@ -16,8 +17,10 @@ userrouter.post("/signup",validateUser, async(req,res) => {
             return res.json({mssg : "User with this username already exists"})
         } else {
             const user = await User.create({
-                email: req.body.email,
-                password: req.body.password})
+                firstname,
+                lastname,
+                email,
+                password})
             const userId = user._id
 
             await Account.create({
