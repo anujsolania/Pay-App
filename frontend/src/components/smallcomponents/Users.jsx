@@ -7,7 +7,7 @@ export function Users() {
             <div className="flex flex-col gap-6" >
                 
                 <div className="flex" >
-                    <div className="w-[50%] flex gap-4" >
+                    <div className="w-[50%] flex items-center gap-4" >
                         <button className="w-8 h-8 border rounded-full" >U1</button>
                         <h1>User 1</h1>
                     </div>
@@ -17,11 +17,11 @@ export function Users() {
                 </div>
 
                 <div className="flex" >
-                    <div className="w-[50%] flex gap-4" >
+                    <div className="w-[50%] flex items-center gap-4" >
                         <button className="w-8 h-8 border rounded-full" >U2</button>
                         <h1>User 2</h1>
                     </div>
-                    <div className="w-[50%] flex justify-end" >
+                    <div className="w-[50%] flex items-center justify-end" >
                         <button className="rounded bg-black text-white" style={{padding: "4px 10px"}}>Send Money</button>
                     </div>
                 </div>

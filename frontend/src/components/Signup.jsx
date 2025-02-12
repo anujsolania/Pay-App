@@ -11,7 +11,7 @@ export function Signup() {
     
     return (
         <div className="flex flex-col items-center justify-center h-screen w-screen" >
-        <div className="border h-auto w-auto flex flex-col items-center gap-6 rounded-lg " style={{padding: "2% 0"}} >
+        <div className="border h-auto w-[65%] sm:w-[40%] flex flex-col items-center gap-6 rounded-lg" style={{padding: "2% 0"}} >
 
             <div className="flex flex-col items-center gap-1">
             <h1 className="text-2xl font-bold " >Sign Up</h1>
