@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 
 export function Signup() {
-    const [firstname,setfirstname] = useState()
-    const[lastname,setlastname] = useState()
-    const[email,setemail] = useState()
-    const[password,setpassword] = useState()
+    const [firstname,setfirstname] = useState("")
+    const[lastname,setlastname] = useState("")
+    const[email,setemail] = useState("")
+    const[password,setpassword] = useState("")
 
     
     return (
@@ -48,12 +48,19 @@ export function Signup() {
             <div className="flex flex-col items-center gap-3 w-full" style={{marginTop: "5%"}} >
             <button className="rounded-md bg-black text-white w-[90%] " style={{padding: "5px"}} 
             onClick={async () => {
-                const response = await axios.post("http://localhost:3000/api/v1/user/signup",{
-                    firstname,lastname,email,password
-                })
-                if (response.data) {
-                    alert(response.data.mssg)
-                    localStorage.setItem("token",response.data.token)
+                try {
+                    const response = await axios.post("http://localhost:3000/api/v1/user/signup",{
+                        firstname,
+                        lastname,
+                        email,
+                        password
+                    })
+                    if (response.data) {
+                        alert(response.data.mssg)
+                        localStorage.setItem("token",response.data.token)
+                    }
+                } catch (error) {
+                    alert(error.response.data.error)
                 }
             }} >Sign Up</button>
             <p className="font-medium" >Already have an account? <Link to={"/signin"} className="underline" >Login</Link> </p>

@@ -1,5 +1,5 @@
 const express = require("express")
-const validateUser = require("../middleware/validateUser")
+const {validateUser, signupSchema, signinSchema} = require("../middleware/validateUser")
 const { jwt, jwtkey } = require("../jwt/jwt")
 const validateReq = require("../middleware/validateReq")
 const { User, Account } = require("../db/mongoose")
@@ -7,10 +7,10 @@ const userrouter = express.Router()
 
 
 //SIGNUP
-userrouter.post("/signup",validateUser, async(req,res) => {
+userrouter.post("/signup",validateUser(signupSchema), async(req,res) => {
     const {firstname,lastname,email,password} = req.body
 
-
+    console.log(firstname,lastname,email,password)
     try {
         const result = await User.findOne({email})
         if (result) {
@@ -32,24 +32,30 @@ userrouter.post("/signup",validateUser, async(req,res) => {
             return res.json({mssg: "User created successfully",token: token})
         } 
     } catch (error) {
-        return res.json({mssg: "Error while creating user"})
+        return res.json({mssg: "Error while creating user",error})
     }
 
 })
 
 //SIGNIN
-userrouter.post("/signin",validateUser, async(req,res) => {
+userrouter.post("/signin",validateUser(signinSchema), async(req,res) => {
     const {email, password} = req.body
+    console.log(email)
     
-    const user = await User.findOne({email,password})
-    const userId = user._id
+    const user = await User.findOne({email})
 
-    if (user) {
-        const token = jwt.sign({userId},jwtkey,{ expiresIn: "1h" })
-        return res.json({mssg: `Logged IN successfully as${user.firstname}`,token: token})
-    } else if (!user) {
-        return res.json({mssg: "User doesn't exists"})
+    try {
+        if (user) {
+            const userId = user._id
+            const token = jwt.sign({userId},jwtkey,{ expiresIn: "1h" })
+            return res.json({mssg: `Logged IN successfully as${user.firstname}`,token: token})
+        } else if (!user) {
+            return res.json({mssg: "User doesn't exists"})
+        }
+    } catch (error) {
+        return res.json({mssg: "error while logginIN",error})
     }
+
 })
 
 //UPDATE INFO(USERNAME,PASS,)
@@ -84,13 +90,18 @@ userrouter.patch("/updateinfo",validateReq, async (req,res) => {
 })
 
 //SEARCH USER
-userrouter.get("/bulk", validateReq, async (req,res) => {
+userrouter.get("/bulk",validateReq, async (req,res) => {
     const filter = req.query.filter
 
     try {
+        if (!filter) {
+            const allusers = await User.find({})
+            return res.json({ allusers });
+        }
+
         const result = await User.find({firstname: filter})
         if (result.length === 0) {
-            return res.json({ mssg: "No users found with the given username." });
+            return res.status(200).json({mssg: "No matching user found"})
         }
         return res.status(200).json({users: result})
     } catch (error) {
