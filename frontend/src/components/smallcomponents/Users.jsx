@@ -1,39 +1,51 @@
 import axios from "axios"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 export function Users() {
-    const [filter,setfilter] = useState("")
     const [allusers,setallusers] = useState()
-    const [debounceTimeout,setdebounceTimeout] = useState("")
+    const debounce = useRef()
 
     async function fetchUsers() {
-        const response = await axios.get("http://localhost:3000/api/v1/user/bulk")
+        const token = localStorage.getItem("token")
+        const response = await axios.get("http://localhost:3000/api/v1/user/bulk",{
+            headers: {
+                Authorization: token
+            }
+        })
         setallusers(response.data.allusers)
     }
 
     async function filterUsers(filter) {
-        if (debounceTimeout) {
-            clearTimeout(debounceTimeout)
+        if (debounce.current) {
+            clearTimeout(debounce.current)
         }
-        const timeoutID = setTimeout(async () => {
-            const response = await axios.get(`http://localhost:3000/api/v1/user/bulk?filter=${filter}`)
-            setallusers(response.data.users) 
-        }, 1000);
 
-        setdebounceTimeout(timeoutID)
+        debounce.current = setTimeout(async () => {
+            if (filter === "") {
+                fetchUsers()
+            } else {
+            const token = localStorage.getItem("token")
+            const response = await axios.get(`http://localhost:3000/api/v1/user/bulk?filter=${filter}`,{
+                headers: {
+                    Authorization: token
+                }
+            })
+            setallusers(response.data.users) 
+            }
+        }, 300);
     }
 
     useEffect(() => {
         fetchUsers()
-    })
+    },[])
 
     return (
         <div className="flex flex-col gap-6" style={{padding: "0 2%"}} >
             <h1 className="font-bold text-xl" >Users</h1>
             <input className="w-full border rounded" style={{padding: "0.5%"}} type="text" placeholder=" Search users..."
-            value={filter} onChange={
+            onChange={
                 (e) => {
-                    setfilter(e.target.value)
+                    const filter = e.target.value
                     filterUsers(filter)
                 }
             } ></input>

@@ -41,8 +41,7 @@ export function Signin() {
                         alert(response.data.mssg)
                         localStorage.setItem("token",response.data.token)
                     } catch (error) {
-                        alert(error.response)
-                        console.log(error)
+                        alert(error.response.data.error)
                     }
                 }} >Sign In</button>
                 <p className="font-medium" >Don't have an account? <Link to={"/signup"} className="underline">Sign Up</Link> </p>

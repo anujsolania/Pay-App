@@ -13,15 +13,10 @@ const signinSchema = z.object({
 })
 
 function validateUser(schema) {
-
     return function(req,res,next) {
         const result = schema.safeParse(req.body)
-
         if (!result.success) {
-            const errors = result.error.issues.map(issue => {
-                // Customize error message for clarity
-                return `${issue.path[0]} is ${issue.message}`; // e.g., "email is Required"
-            });
+                return res.status(400).json({ error: result.error.errors[0].message });
         } 
         next()
     }

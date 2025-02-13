@@ -94,9 +94,13 @@ userrouter.get("/bulk",validateReq, async (req,res) => {
     const filter = req.query.filter
 
     try {
+        const account = await Account.findOne({userId: req.userId}).populate('userId')
+        const firstname = account.userId.firstname
+        const lastname = account.userId.lastname
+
         if (!filter) {
-            const allusers = await User.find({})
-            return res.json({ allusers });
+            const allusers = await User.find({_id: {$ne: req.userId}})
+            return res.json({ allusers, balance: account.balance, firstname, lastname});
         }
 
         const result = await User.find({firstname: filter})
@@ -105,6 +109,7 @@ userrouter.get("/bulk",validateReq, async (req,res) => {
         }
         return res.status(200).json({users: result})
     } catch (error) {
+        console.log(error)
         return res.status(500).json({ error: "Error occurred while fetching users" });
     }
 
