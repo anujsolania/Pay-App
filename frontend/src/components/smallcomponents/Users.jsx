@@ -1,9 +1,17 @@
 import axios from "axios"
-import { useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { ReceiverIdContext, ReceiverNameContext} from "../contextAPI/Context"
+
 
 export function Users() {
     const [allusers,setallusers] = useState()
     const debounce = useRef()
+
+    const [_, setReceiverId ] = useContext(ReceiverIdContext);
+    const [__, setReceiverName ] = useContext(ReceiverNameContext);
+
+    const navigate = useNavigate()
 
     async function fetchUsers() {
         const token = localStorage.getItem("token")
@@ -61,7 +69,13 @@ export function Users() {
                             <h1>{user.firstname}</h1>
                         </div>
                         <div className="w-[50%] flex justify-end" >
-                            <button className="rounded bg-black text-white" style={{padding: "4px 10px"}}>Send Money</button>
+                            <button className="rounded bg-black text-white" style={{padding: "4px 10px"}}
+                            onClick={async () => {
+                                setReceiverId(user._id)
+                                const name = user.firstname + " "+ user.lastname
+                                setReceiverName(name)
+                                navigate("/sendmoney")
+                            }} >Send Money</button>
                         </div>
                     </div>
 

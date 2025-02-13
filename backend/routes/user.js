@@ -94,16 +94,13 @@ userrouter.get("/bulk",validateReq, async (req,res) => {
     const filter = req.query.filter
 
     try {
-        const account = await Account.findOne({userId: req.userId}).populate('userId')
-        const firstname = account.userId.firstname
-        const lastname = account.userId.lastname
 
         if (!filter) {
             const allusers = await User.find({_id: {$ne: req.userId}})
-            return res.json({ allusers, balance: account.balance, firstname, lastname});
+            return res.json({ allusers });
         }
 
-        const result = await User.find({firstname: filter})
+        const result = await User.find({firstname: {$regex: filter, $options: "i"}})
         if (result.length === 0) {
             return res.status(200).json({mssg: "No matching user found"})
         }

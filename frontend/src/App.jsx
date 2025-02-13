@@ -5,11 +5,12 @@ import { Signup } from './components/Signup';
 import { Signin } from './components/Signin';
 import { Dashboard } from './components/Dashboard';
 import { Sendmoney } from './components/Sendmoney';
+import { ReceiverProvider } from './components/contextAPI/Context';
 
 function App() {
 
   return (
-    <>
+    <ReceiverProvider>
     <Router>
     <Routes>
       <Route path="/" element={<Signup></Signup>} ></Route>
@@ -18,7 +19,7 @@ function App() {
       <Route path="/dashboard" element={<Dashboard></Dashboard>} ></Route>
     </Routes>
     </Router>
-    </>
+    </ReceiverProvider>
   )
 }
 

@@ -11,7 +11,7 @@ export function Dashboard() {
 
     async function fetchdata() {
         const token = localStorage.getItem("token")
-        const response = await axios.get("http://localhost:3000/api/v1/user/bulk",{
+        const response = await axios.get("http://localhost:3000/api/v1/account/balance",{
             headers: {
                 Authorization: token
             }

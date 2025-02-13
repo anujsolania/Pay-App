@@ -8,8 +8,12 @@ accountrouter.get("/balance",validateReq, async (req,res) => {
     const userId = req.userId
 
     try {
-        const account = await Account.findOne({userId})
-        return res.status(200).json({balance: account.balance})
+        const account = await Account.findOne({userId: req.userId}).populate('userId')
+        const balance = account.balance
+        const firstname = account.userId.firstname
+        const lastname = account.userId.lastname
+
+        return res.status(200).json({balance, firstname, lastname})
     } catch (error) {
         return res.json({mssg: "Error while fetching balance"})
     }

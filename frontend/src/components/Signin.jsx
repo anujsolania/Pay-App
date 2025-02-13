@@ -1,10 +1,12 @@
 import axios from "axios";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function Signin() {
         const[email,setemail] = useState("")
         const[password,setpassword] = useState("")
+
+        const navigate = useNavigate()
 
     return (
         <div className="flex flex-col items-center justify-center h-screen w-screen" >
@@ -40,6 +42,7 @@ export function Signin() {
                         })
                         alert(response.data.mssg)
                         localStorage.setItem("token",response.data.token)
+                        navigate("/dashboard")
                     } catch (error) {
                         alert(error.response.data.error)
                     }
