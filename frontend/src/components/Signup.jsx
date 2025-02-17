@@ -46,7 +46,7 @@ export function Signup() {
             </div>
 
             <div className="flex flex-col items-center gap-3 w-full" style={{marginTop: "5%"}} >
-            <button className="rounded-md bg-black text-white w-[90%] " style={{padding: "5px"}} 
+            <Link className="rounded-md bg-black text-white w-[90%] text-center" style={{padding: "5px"}} 
             onClick={async () => {
                 try {
                     const response = await axios.post("http://localhost:3000/api/v1/user/signup",{
@@ -55,14 +55,14 @@ export function Signup() {
                         email,
                         password
                     })
-                    if (response.data) {
+                    if (response.data.token) {
                         alert(response.data.mssg)
                         localStorage.setItem("token",response.data.token)
                     }
                 } catch (error) {
                     alert(error.response.data.error)
                 }
-            }} >Sign Up</button>
+            }} to={"/dashboard"} >Sign Up</Link>
             <p className="font-medium" >Already have an account? <Link to={"/signin"} className="underline" >Login</Link> </p>
             </div>
 

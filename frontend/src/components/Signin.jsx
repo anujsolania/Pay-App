@@ -40,14 +40,20 @@ export function Signin() {
                             email,
                             password
                         })
-                        alert(response.data.mssg)
-                        localStorage.setItem("token",response.data.token)
-                        navigate("/dashboard")
+                        const token = response.data.token
+
+                        if (token) {
+                            localStorage.setItem("token",response.data.token)
+                            alert(response.data.mssg);
+                            navigate("/dashboard");
+                        } else {
+                            alert(response.data.mssg);
+                        }
                     } catch (error) {
                         alert(error.response.data.error)
                     }
                 }} >Sign In</button>
-                <p className="font-medium" >Don't have an account? <Link to={"/signup"} className="underline">Sign Up</Link> </p>
+                <p className="font-medium" >Don't have an account? <Link to={"/"} className="underline">Sign Up</Link> </p>
                 </div>
 
             </div>

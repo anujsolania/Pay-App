@@ -42,15 +42,15 @@ userrouter.post("/signin",validateUser(signinSchema), async(req,res) => {
     const {email, password} = req.body
     console.log(email)
     
-    const user = await User.findOne({email})
+    const user = await User.findOne({email,password})
 
     try {
         if (user) {
             const userId = user._id
             const token = jwt.sign({userId},jwtkey,{ expiresIn: "1h" })
-            return res.json({mssg: `Logged IN successfully as${user.firstname}`,token: token})
+            return res.status(200).json({mssg: `Logged IN successfully as${user.firstname}`,token: token})
         } else if (!user) {
-            return res.json({mssg: "User doesn't exists"})
+            return res.json({mssg: "Incorrect inputs/User doesn't exists"})
         }
     } catch (error) {
         return res.json({mssg: "error while logginIN",error})
@@ -61,6 +61,10 @@ userrouter.post("/signin",validateUser(signinSchema), async(req,res) => {
 //UPDATE INFO(USERNAME,PASS,)
 userrouter.patch("/updateinfo",validateReq, async (req,res) => {
     const {newemail,newpassword}= req.body
+
+    if (!newemail || !newpassword) {
+        return res.json({mssg: "send the input"})
+    }
 
     const userId = req.userId
 
