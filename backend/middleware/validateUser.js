@@ -12,6 +12,15 @@ const signinSchema = z.object({
     password: z.string().trim().min(6,{message: "Password must be at least 6 characters long"} )
 })
 
+const updateinfoSchema = z.object({
+    newfirstname: z.string().trim()
+    .refine((val) => val === "" || val.length >= 3, {message: "Firstname must be atleast 3 characters long"})
+    .optional(),
+    newlastname: z.string().trim().min(3,{message: "Lastname must be atleast 3 characters long"}).optional(),
+    newemail: z.string().trim().email({message: "invalid email"}).optional(),
+    newpassword: z.string().trim().min(6,{message: "Password must be at least 6 characters long"}).optional()
+})
+
 function validateUser(schema) {
     return function(req,res,next) {
         const result = schema.safeParse(req.body)
@@ -22,4 +31,4 @@ function validateUser(schema) {
     }
 }
 
-module.exports = {signupSchema, signinSchema,validateUser}
+module.exports = {signupSchema,signinSchema,updateinfoSchema,validateUser}

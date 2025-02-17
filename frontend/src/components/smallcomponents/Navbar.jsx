@@ -8,7 +8,7 @@ export default function Navabar({shownav,setshownav,name}) {
 
     return (
         <div>
-        <Updateinfo showupdateinfo={showupdateinfo} setshowupdateinfo={setshowupdateinfo} ></Updateinfo>
+        <Updateinfo showupdateinfo={showupdateinfo} setshowupdateinfo={setshowupdateinfo}></Updateinfo>
         <div className="border h-screen w-30 sm:w-fit border-l-gray-500 flex flex-col fixed top-0 p-7 backdrop-blur-xs bg-white/75 transition-all duration-1000" style={{right: shownav ? "0px" : "-200px"}}  >
             <h1>
             <i className="ri-arrow-right-line border rounded p-1.5" onClick={() => {setshownav(false)}} ></i>

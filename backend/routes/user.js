@@ -1,5 +1,5 @@
 const express = require("express")
-const {validateUser, signupSchema, signinSchema} = require("../middleware/validateUser")
+const {validateUser, signupSchema, signinSchema, updateinfoSchema} = require("../middleware/validateUser")
 const { jwt, jwtkey } = require("../jwt/jwt")
 const validateReq = require("../middleware/validateReq")
 const { User, Account } = require("../db/mongoose")
@@ -59,35 +59,48 @@ userrouter.post("/signin",validateUser(signinSchema), async(req,res) => {
 })
 
 //UPDATE INFO(USERNAME,PASS,)
-userrouter.patch("/updateinfo",validateReq, async (req,res) => {
-    const {newemail,newpassword}= req.body
+userrouter.patch("/updateinfo",validateUser(updateinfoSchema), validateReq, async (req,res) => {
+    const {newfirstname,newlastname,newemail,newpassword}= req.body
+    console.log(newfirstname)
+    
+    const updateFields = {};
 
-    if (!newemail || !newpassword) {
-        return res.json({mssg: "send the input"})
+    // Only add fields to update if they are not undefined or empty
+    if (newfirstname) updateFields.firstname = newfirstname;
+    if (newlastname) updateFields.lastname = newlastname;
+    if (newemail) updateFields.email = newemail;
+    if (newpassword) updateFields.password = newpassword;
+
+    if (Object.keys(updateFields).length === 0) {
+        return res.json({mssg: "No input received"})
     }
 
     const userId = req.userId
 
     try {
 
-        const existingUser = await User.findOne({email: newemail})
+        const existingUser = await User.findOne({$or: [
+            { firstname: newfirstname },
+            { lastname: newlastname },
+            { email: newemail },
+            { password: newpassword }
+        ]})
+
         if (existingUser) {
-            return res.json({mssg: "Username already taken. Choose another"})
+            if (newfirstname == existingUser.firstname) {
+                return res.json({mssg: "Firstname already taken. Choose another"})
+            }
+            if (newlastname == existingUser.lastname) {
+                return res.json({mssg: "Lastname already taken. Choose another"})
+            }
+            if (newemail == existingUser.newemail) {
+                return res.json({mssg: "Email already taken. Choose another"})
+            }
         }
-        if (newemail && newpassword) {
-            await User.findByIdAndUpdate(userId,{$set: {email: newemail, password: newpassword}})
-            return res.json({mssg: "Username & password updated"})
 
-        } 
-        if (newemail && !newpassword) {
-            await User.findByIdAndUpdate(userId,{$set: {email: newemail}})
-            return res.json({mssg: "Username updated"})
+        await User.findByIdAndUpdate(userId, {$set: updateFields})
+        return res.json({mssg: "Updated successfully"})
 
-        } 
-        if (!newemail && newpassword) {
-            await User.findByIdAndUpdate(userId,{$set: {email: newemail}})
-            return res.json({mssg: "Password updated"})
-        }
     } catch (error) {
         return res.json({mssg: "Error while updating",error: error.message})
     }
