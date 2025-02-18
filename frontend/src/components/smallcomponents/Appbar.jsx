@@ -1,7 +1,10 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import Navabar from "./Navbar"
+import { MyContext } from "../contextAPI/Context"
 
-export function Appbar({firstname,lastname}) {
+export function Appbar() {
+    const {firstname,lastname} = useContext(MyContext)
+
     const[shownav,setshownav] = useState(false)
 
     const name = firstname + " " + lastname

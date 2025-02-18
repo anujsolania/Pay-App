@@ -13,12 +13,23 @@ const signinSchema = z.object({
 })
 
 const updateinfoSchema = z.object({
+
     newfirstname: z.string().trim()
-    .refine((val) => val === "" || val.length >= 3, {message: "Firstname must be atleast 3 characters long"})
+    .refine(val => val === "" || val.length >= 3, {message: "Firstname must be atleast 3 characters long"})
     .optional(),
-    newlastname: z.string().trim().min(3,{message: "Lastname must be atleast 3 characters long"}).optional(),
-    newemail: z.string().trim().email({message: "invalid email"}).optional(),
-    newpassword: z.string().trim().min(6,{message: "Password must be at least 6 characters long"}).optional()
+
+    newlastname: z.string().trim()
+    .refine(val => val === "" || val.length >= 3, {message: "Lastname must be atleast 3 characters long"})
+    .optional(),
+
+    newemail: z.string()
+    .trim()
+    .refine(val => val === "" || z.string().email().safeParse(val).success, {message: "Invalid email"})
+    .optional(),
+
+    newpassword: z.string().trim()
+    .refine(val => val === "" || val.length >= 3, {message: "Firstname must be atleast 3 characters long"})
+    .optional()
 })
 
 function validateUser(schema) {

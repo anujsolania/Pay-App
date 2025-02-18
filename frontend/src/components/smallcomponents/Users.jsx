@@ -1,15 +1,16 @@
 import axios from "axios"
 import { useContext, useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { ReceiverIdContext, ReceiverNameContext} from "../contextAPI/Context"
+import { MyContext } from "../contextAPI/Context"
+
 
 
 export function Users() {
     const [allusers,setallusers] = useState()
     const debounce = useRef()
 
-    const [_, setReceiverId ] = useContext(ReceiverIdContext);
-    const [__, setReceiverName ] = useContext(ReceiverNameContext);
+    const {setReceiverId} = useContext(MyContext);
+    const {setReceiverName} = useContext(MyContext);
 
     const navigate = useNavigate()
 

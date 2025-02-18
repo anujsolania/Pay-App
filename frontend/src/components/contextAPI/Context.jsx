@@ -1,22 +1,50 @@
-// contexts/receiverContext.js
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
+import axios from "axios";
 
-// Context for receiverId
-export const ReceiverIdContext = createContext();
+export const MyContext = createContext();
 
-// Context for receiverName
-export const ReceiverNameContext = createContext();
+export function MyProvider({ children }) {
+    const [balance, setbalance] = useState(0);
+    const [firstname, setfirstname] = useState("");
+    const [lastname, setlastname] = useState("");
+    const [receiverId, setReceiverId] = useState(""); 
+    const [receiverName, setReceiverName] = useState("");
 
-// Provider component for both contexts
-export const ReceiverProvider = ({ children }) => {
-    const [receiverId, setReceiverId] = useState(""); // Initial state for receiverId
-    const [receiverName, setReceiverName] = useState(""); // Initial state for receiverName
+    async function fetchData() {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("No token found!");
+                return;
+            }
+
+            const response = await axios.get("http://localhost:3000/api/v1/account/balance", {
+                headers: {
+                    Authorization: token
+                }
+            });
+
+            setbalance(response.data.balance);
+            setfirstname(response.data.firstname);
+            setlastname(response.data.lastname);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    }
+
+    // Fetch data when the component mounts
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     return (
-        <ReceiverIdContext.Provider value={[receiverId, setReceiverId]}>
-            <ReceiverNameContext.Provider value={[receiverName, setReceiverName]}>
-                {children}
-            </ReceiverNameContext.Provider>
-        </ReceiverIdContext.Provider>
+        <MyContext.Provider value={{ 
+            balance, setbalance, firstname,setfirstname, lastname,setlastname,
+            receiverId, setReceiverId, receiverName, setReceiverName
+        }}>
+            {children}
+        </MyContext.Provider>
     );
-};
+}
+
+export default MyProvider;

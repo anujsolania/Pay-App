@@ -1,11 +1,14 @@
 import axios from "axios"
-import { useState } from "react"
+import { useContext, useState } from "react"
+import { MyContext } from "../contextAPI/Context"
 
 export default function Updateinfo({showupdateinfo,setshowupdateinfo}) {
     const [newfirstname,setnewfirstname] = useState()
     const [newlastname,setnewlastname] = useState()
     const[newemail,setnewemail] = useState()
     const[newpassword,setnewpassword] = useState()
+
+    const {setfirstname,setlastname} = useContext(MyContext)
 
     return (
         <div className="h-screen w-screen fixed flex justify-center items-center backdrop-blur-xs transition-all duration-1000" style={{right: showupdateinfo ? "0px" : "-100vw"}} >
@@ -45,9 +48,15 @@ export default function Updateinfo({showupdateinfo,setshowupdateinfo}) {
                         }
                     })
                     alert(response.data.mssg)
+
+                    if (newfirstname) { setfirstname(newfirstname), setnewfirstname("") }
+                    if (newlastname) { setlastname(newlastname), setnewlastname("") }
+
+
                 } catch (error) {
                     alert(error.response.data.error)
                     }
+
                 }} className="border bg-black text-white rounded border-black w-fit p-[2%]"  >Update</button>
                 </div>
                 

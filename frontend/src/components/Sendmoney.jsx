@@ -1,14 +1,14 @@
 import axios from "axios";
 import { useContext, useState } from "react"
-import { ReceiverIdContext, ReceiverNameContext } from "./contextAPI/Context";
+import { MyContext} from "./contextAPI/Context";
 import { useNavigate } from "react-router-dom";
 
 export function Sendmoney() {
     const[amount,setamount] = useState("")
     
 
-    const [receiverId] = useContext(ReceiverIdContext)
-    const [receiverName] = useContext(ReceiverNameContext)
+    const {receiverId} = useContext(MyContext)
+    const {receiverName} = useContext(MyContext)
 
     const navigate = useNavigate()
 
