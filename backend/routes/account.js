@@ -4,6 +4,20 @@ const { User, Account } = require("../db/mongoose")
 const mongoose = require("mongoose")
 const accountrouter = express.Router()
 
+
+accountrouter.get("/receiverdetails/:userId",validateReq, async (req,res) => {
+    const userId = req.params.userId
+
+    try {
+        const receiver = await User.findById(userId)
+        const name = receiver.firstname + " " + receiver.lastname
+
+        return res.status(200).json({name})
+    } catch (error) {
+        return res.json({mssg: "Error while fetching receivers details",error})
+    }
+})
+
 accountrouter.get("/balance",validateReq, async (req,res) => {
     const userId = req.userId
 

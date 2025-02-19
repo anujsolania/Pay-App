@@ -9,8 +9,8 @@ export function Users() {
     const [allusers,setallusers] = useState()
     const debounce = useRef()
 
-    const {setReceiverId} = useContext(MyContext);
-    const {setReceiverName} = useContext(MyContext);
+    const {setreceiverId} = useContext(MyContext);
+    const {setreceiverName} = useContext(MyContext);
 
     const navigate = useNavigate()
 
@@ -72,10 +72,10 @@ export function Users() {
                         <div className="w-[50%] flex justify-end" >
                             <button className="rounded bg-black text-white" style={{padding: "4px 10px"}}
                             onClick={async () => {
-                                setReceiverId(user._id)
+                                setreceiverId(user._id)
                                 const name = user.firstname + " "+ user.lastname
-                                setReceiverName(name)
-                                navigate("/sendmoney")
+                                setreceiverName(name)
+                                navigate(`/sendmoney/${user._id}`)
                             }} >Send Money</button>
                         </div>
                     </div>

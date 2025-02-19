@@ -3,7 +3,7 @@ import Navabar from "./Navbar"
 import { MyContext } from "../contextAPI/Context"
 
 export function Appbar() {
-    const {firstname,lastname} = useContext(MyContext)
+    const {firstname,lastname, fetchData} = useContext(MyContext)
 
     const[shownav,setshownav] = useState(false)
 

@@ -7,8 +7,8 @@ export function MyProvider({ children }) {
     const [balance, setbalance] = useState(0);
     const [firstname, setfirstname] = useState("");
     const [lastname, setlastname] = useState("");
-    const [receiverId, setReceiverId] = useState(""); 
-    const [receiverName, setReceiverName] = useState("");
+    const [receiverId, setreceiverId] = useState(""); 
+    const [receiverName, setreceiverName] = useState("");
 
     async function fetchData() {
         try {
@@ -40,7 +40,7 @@ export function MyProvider({ children }) {
     return (
         <MyContext.Provider value={{ 
             balance, setbalance, firstname,setfirstname, lastname,setlastname,
-            receiverId, setReceiverId, receiverName, setReceiverName
+            receiverId, setreceiverId, receiverName, setreceiverName, fetchData
         }}>
             {children}
         </MyContext.Provider>

@@ -2,7 +2,6 @@ import { useContext, useEffect, useState } from "react";
 import { Appbar } from "./smallcomponents/Appbar";
 import { Balance } from "./smallcomponents/Balance";
 import { Users } from "./smallcomponents/Users";
-import { MyContext } from "./contextAPI/Context";
 
 export function Dashboard() {
  

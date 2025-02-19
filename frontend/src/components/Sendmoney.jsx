@@ -1,16 +1,36 @@
 import axios from "axios";
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { MyContext} from "./contextAPI/Context";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export function Sendmoney() {
     const[amount,setamount] = useState("")
-    
 
+    const{fetchData} = useContext(MyContext)
     const {receiverId} = useContext(MyContext)
-    const {receiverName} = useContext(MyContext)
+    const {receiverName,setreceiverName} = useContext(MyContext)
 
     const navigate = useNavigate()
+
+    const { rId } = useParams()
+    console.log
+
+    async function fetchReceiverDetails() {
+
+        const token = localStorage.getItem("token")
+        const response = await axios.get(`http://localhost:3000/api/v1/account/receiverdetails/${rId}`,{
+            headers: {
+                Authorization: token
+            }
+        })
+        setreceiverName(response.data.name)
+
+    }
+
+    useEffect(() => {
+        fetchReceiverDetails()
+    },[receiverId])
 
     return (
         <div className="flex justify-center items-center h-screen w-screen bg-gray-200" >
@@ -33,7 +53,7 @@ export function Sendmoney() {
                         setamount(e.target.value)
                     }} ></input>
                     </div>
-                    <button className="border-2 border-green-500 rounded bg-green-500 text-white text-sm" style={{padding: "3px 4px"}} 
+                    <Link className="border-2 border-green-500 rounded bg-green-500 text-white text-sm text-center" style={{padding: "3px 4px"}} 
                     onClick={async () => {
                         const token = localStorage.getItem("token")
                         const response = await axios.patch("http://localhost:3000/api/v1/account/transfer",{
@@ -44,9 +64,10 @@ export function Sendmoney() {
                                 Authorization: token
                             }
                         })
-                        alert(response.data.mssg)
+                        toast.success(response.data.mssg)
+                        fetchData()
                         navigate("/dashboard")
-                    }} >Initiate Transfer</button>
+                    }} >Initiate Transfer</Link>
                 </div>
 
                 </div>
