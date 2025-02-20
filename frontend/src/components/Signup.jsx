@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { MyContext } from "./contextAPI/Context";
 
 export function Signup() {
     const [firstname,setfirstname] = useState("")
     const[lastname,setlastname] = useState("")
     const[email,setemail] = useState("")
     const[password,setpassword] = useState("")
+
+    const { fetchData } = useContext(MyContext)
 
     
     return (
@@ -57,8 +60,9 @@ export function Signup() {
                         password
                     })
                     if (response.data.token) {
-                        toast.success(response.data.mssg)
                         localStorage.setItem("token",response.data.token)
+                        fetchData()
+                        toast.success(response.data.mssg)
                     }
                 } catch (error) {
                     toast.error(error.response.data.error)

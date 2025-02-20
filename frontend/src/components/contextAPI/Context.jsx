@@ -11,7 +11,6 @@ export function MyProvider({ children }) {
     const [receiverId, setreceiverId] = useState(""); 
     const [receiverName, setreceiverName] = useState("");
 
-    const navigate = useNavigate()
 
     async function fetchData() {
         try {
