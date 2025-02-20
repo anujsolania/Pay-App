@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 
 require("dotenv").config()
-mongoose.connect("mongodb+srv://anujsolania:scam2022@cluster0.kvu08ja.mongodb.net/Pay-App")
+mongoose.connect(`${process.env.MONGO_URL}`)
 .then(() => {console.log("connected to mongoDB")})
 .catch((error) => {console.error("connection error", error)})
 
