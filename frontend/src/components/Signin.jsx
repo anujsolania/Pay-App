@@ -13,7 +13,9 @@ export function Signin() {
         const navigate = useNavigate()
 
         async function loginHandler() {
-            const response = await axios.post(`${import.meta.env.VITE_URL}/user/signin`,{
+
+            try {
+            const response = await axios.post(`${import.meta.env.VITE_URL}/api/v1/user/signin`,{
                 email,
                 password
             })
@@ -24,9 +26,11 @@ export function Signin() {
                 toast.success(response.data.mssg);
                 fetchData()
                 navigate("/dashboard");
-            } else {
-                toast.error(response.data.mssg);
+            } 
+        } catch(error) {
+                toast.error(error.response.data.error);
             }
+            
         }
 
     return (

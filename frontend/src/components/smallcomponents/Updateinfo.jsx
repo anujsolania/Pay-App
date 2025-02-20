@@ -38,7 +38,7 @@ export default function Updateinfo({showupdateinfo,setshowupdateinfo}) {
                 <button onClick={async ()=> { 
                 try {
                     const token = localStorage.getItem("token")
-                    const response = await axios.patch(`${import.meta.env.VITE_URL}/user/updateinfo`,{
+                    const response = await axios.patch(`${import.meta.env.VITE_URL}/api/v1/user/updateinfo`,{
                         newfirstname,
                         newlastname,
                         newemail,

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export const MyContext = createContext();
 
@@ -10,15 +11,18 @@ export function MyProvider({ children }) {
     const [receiverId, setreceiverId] = useState(""); 
     const [receiverName, setreceiverName] = useState("");
 
+    const navigate = useNavigate()
+
     async function fetchData() {
         try {
             const token = localStorage.getItem("token");
             if (!token) {
-                console.error("No token found!");
+                console.log("No token found!");
+
                 return;
             }
 
-            const response = await axios.get("http://localhost:3000/api/v1/account/balance", {
+            const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/account/balance`, {
                 headers: {
                     Authorization: token
                 }
