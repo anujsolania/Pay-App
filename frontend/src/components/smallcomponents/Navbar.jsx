@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import Updateinfo from "./UpdateInfo";
+import Updateinfo from "./Updateinfo";
 import { MyContext } from "../contextAPI/Context";
 import { toast } from "react-toastify";
 
