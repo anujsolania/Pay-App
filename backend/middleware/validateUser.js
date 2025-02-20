@@ -28,7 +28,7 @@ const updateinfoSchema = z.object({
     .optional(),
 
     newpassword: z.string().trim()
-    .refine(val => val === "" || val.length >= 3, {message: "Firstname must be atleast 3 characters long"})
+    .refine(val => val === "" || val.length >= 6, {message: "Password must be atleast 3 characters long"})
     .optional()
 })
 
