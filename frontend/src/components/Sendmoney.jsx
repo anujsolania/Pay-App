@@ -34,7 +34,7 @@ export function Sendmoney() {
 
     return (
         <div className="flex justify-center items-center h-screen w-screen bg-gray-200" >
-            <div className="rounded flex flex-col gap-15 bg-white" style={{padding: "3% 5%"}} >
+            <div className="rounded flex flex-col gap-15 bg-white py-[3%] px-[5%]" >
                 <p className="text-center text-2xl font-bold" >Send Money</p>
 
 
@@ -53,7 +53,7 @@ export function Sendmoney() {
                         setamount(e.target.value)
                     }} ></input>
                     </div>
-                    <Link className="border-2 border-green-500 rounded bg-green-500 text-white text-sm text-center" style={{padding: "3px 4px"}} 
+                    <Link className="border-2 border-green-500 rounded bg-green-500 text-white text-sm text-center py-[3px] px-[4px]" 
                     onClick={async () => {
                         const token = localStorage.getItem("token")
                         const response = await axios.patch(`${import.meta.env.VITE_URL}/api/v1/account/transfer`,{

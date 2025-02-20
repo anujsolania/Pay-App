@@ -5,7 +5,7 @@ export function Balance() {
     const{balance} = useContext(MyContext)
   
     return (
-        <div className="flex font-semibold text-xl" style={{margin: "4% 0", padding: "0 2%"}} >
+        <div className="flex font-semibold text-xl my-[4%] px-[2%]">
             <h1>Your Balance ${balance}</h1>
 
         </div>

@@ -46,7 +46,7 @@ export function Users() {
     },[])
 
     return (
-        <div className="flex flex-col gap-6" style={{padding: "0 2%"}} >
+        <div className="flex flex-col gap-6 px-[2%]">
             <h1 className="font-bold text-xl" >Users</h1>
             <input className="w-full border rounded" style={{padding: "0.5%"}} type="text" placeholder=" Search users..."
             onChange={
@@ -67,7 +67,7 @@ export function Users() {
                             <h1>{user.firstname}</h1>
                         </div>
                         <div className="w-[50%] flex justify-end" >
-                            <button className="rounded bg-black text-white" style={{padding: "4px 10px"}}
+                            <button className="rounded bg-black text-white py-[4px] px-[10px]"
                             onClick={async () => {
                                 navigate(`/sendmoney/${user._id}`)
                             }} >Send Money</button>
