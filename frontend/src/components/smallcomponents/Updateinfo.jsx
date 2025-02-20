@@ -1,12 +1,13 @@
 import axios from "axios"
 import { useContext, useState } from "react"
 import { MyContext } from "../contextAPI/Context"
+import { toast } from "react-toastify"
 
 export default function Updateinfo({showupdateinfo,setshowupdateinfo}) {
-    const [newfirstname,setnewfirstname] = useState()
-    const [newlastname,setnewlastname] = useState()
-    const[newemail,setnewemail] = useState()
-    const[newpassword,setnewpassword] = useState()
+    const [newfirstname,setnewfirstname] = useState("")
+    const [newlastname,setnewlastname] = useState("")
+    const[newemail,setnewemail] = useState("")
+    const[newpassword,setnewpassword] = useState("")
 
     const {setfirstname,setlastname} = useContext(MyContext)
 
@@ -47,14 +48,14 @@ export default function Updateinfo({showupdateinfo,setshowupdateinfo}) {
                             Authorization: token
                         }
                     })
-                    alert(response.data.mssg)
+                    toast.success(response.data.mssg)
 
                     if (newfirstname) { setfirstname(newfirstname), setnewfirstname("") }
                     if (newlastname) { setlastname(newlastname), setnewlastname("") }
 
 
                 } catch (error) {
-                    alert(error.response.data.error)
+                    toast.error(error.response.data.error)
                     }
 
                 }} className="border bg-black text-white rounded border-black w-fit p-[2%]"  >Update</button>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 export function Signup() {
     const [firstname,setfirstname] = useState("")
@@ -56,11 +57,11 @@ export function Signup() {
                         password
                     })
                     if (response.data.token) {
-                        alert(response.data.mssg)
+                        toast.success(response.data.mssg)
                         localStorage.setItem("token",response.data.token)
                     }
                 } catch (error) {
-                    alert(error.response.data.error)
+                    toast.error(error.response.data.error)
                 }
             }} to={"/dashboard"} >Sign Up</Link>
             <p className="font-medium" >Already have an account? <Link to={"/signin"} className="underline" >Login</Link> </p>

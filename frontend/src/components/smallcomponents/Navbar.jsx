@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import Updateinfo from "./UpdateInfo";
 import { MyContext } from "../contextAPI/Context";
+import { toast } from "react-toastify";
 
 export default function Navabar({shownav,setshownav}) {
        const {firstname,lastname} = useContext(MyContext)
@@ -24,7 +25,7 @@ export default function Navabar({shownav,setshownav}) {
                 <Link to={"/"} >Home</Link>
                 <Link onClick={async ()=> {
                     localStorage.clear()
-                    alert("Logged Out successfully")
+                    toast.success("Logged Out successfully")
                 }} to={"/signin"} >Log Out</Link>
                 <Link>Services</Link>
             </div>

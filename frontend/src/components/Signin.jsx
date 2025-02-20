@@ -2,6 +2,7 @@ import axios from "axios";
 import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MyContext } from "./contextAPI/Context";
+import { toast } from "react-toastify";
 
 export function Signin() {
     const {fetchData} = useContext(MyContext)
@@ -20,11 +21,11 @@ export function Signin() {
 
             if (token) {
                 localStorage.setItem("token",response.data.token)
-                alert(response.data.mssg);
+                toast.success(response.data.mssg);
                 fetchData()
                 navigate("/dashboard");
             } else {
-                alert(response.data.mssg);
+                toast.error(response.data.mssg);
             }
         }
 
@@ -46,7 +47,7 @@ export function Signin() {
                 
                 <div>
                     <h1 className="font-medium">Password</h1>
-                    <input type="text" className="border rounded w-full" style={{padding: "2%"}} 
+                    <input type="password" className="border rounded w-full" style={{padding: "2%"}} 
                     value={password} onChange={(e) => {setpassword(e.target.value)}} ></input>
                 </div>
                 </div>
@@ -59,7 +60,7 @@ export function Signin() {
                         loginHandler()
 
                     } catch (error) {
-                        alert(error.response.data.error)
+                        toast.error(error.response.data.error)
                     }
                 }} >Sign In</button>
                 <p className="font-medium" >Don't have an account? <Link to={"/"} className="underline">Sign Up</Link> </p>

@@ -20,7 +20,7 @@ export function Appbar() {
             <button className="w-8 h-8 border rounded"
             onClick={() => {
                 setshownav(true)
-            }} ><i class="ri-menu-line"></i> </button>
+            }} ><i className="ri-menu-line"></i> </button>
         </div>
         </div> 
     </div>
