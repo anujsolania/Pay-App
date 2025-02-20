@@ -7,6 +7,9 @@ app.use(express.json())
 app.use(cors())
 
 app.use("/api/v1", Router)
+app.get("/",(req,res) => {
+    res.send("root route")
+})
 
 app.use((err,req,res,next)=> {
     return res.json({
