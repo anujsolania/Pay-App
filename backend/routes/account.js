@@ -35,9 +35,9 @@ accountrouter.get("/balance",validateReq, async (req,res) => {
 
 accountrouter.patch("/transfer",validateReq, async (req,res) => {
     const senderId = req.userId
-    const {receiverId,amount} = req.body
+    const {rId,amount} = req.body
 
-    if (!receiverId || !amount) {
+    if (!rId || !amount) {
         return res.json({mssg : "Missing required fields"})
     }
 
@@ -47,7 +47,7 @@ accountrouter.patch("/transfer",validateReq, async (req,res) => {
     session.startTransaction()  //start transaction
 
     const senderAcc = await Account.findOne({userId: senderId}).session(session);
-    const receiverAcc = await Account.findOne({userId: receiverId}).session(session);
+    const receiverAcc = await Account.findOne({userId: rId}).session(session);
 
     if (senderAcc.balance < amount) {
         await session.abortTransaction()  //abort transaction
@@ -60,7 +60,7 @@ accountrouter.patch("/transfer",validateReq, async (req,res) => {
     }
 
     await Account.updateOne({userId: senderId},{$inc: {balance: -amount}}).session(session)  //part of session
-    await Account.updateOne({userId: receiverId},{$inc: {balance: amount}}).session(session)  //part of session
+    await Account.updateOne({userId: rId},{$inc: {balance: amount}}).session(session)  //part of session
 
     await session.commitTransaction()
     session.endSession()

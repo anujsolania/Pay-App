@@ -1,7 +1,6 @@
 import axios from "axios"
-import { useContext, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { MyContext } from "../contextAPI/Context"
 
 
 
@@ -9,8 +8,6 @@ export function Users() {
     const [allusers,setallusers] = useState()
     const debounce = useRef()
 
-    const {setreceiverId} = useContext(MyContext);
-    const {setreceiverName} = useContext(MyContext);
 
     const navigate = useNavigate()
 
@@ -72,9 +69,6 @@ export function Users() {
                         <div className="w-[50%] flex justify-end" >
                             <button className="rounded bg-black text-white" style={{padding: "4px 10px"}}
                             onClick={async () => {
-                                setreceiverId(user._id)
-                                const name = user.firstname + " "+ user.lastname
-                                setreceiverName(name)
                                 navigate(`/sendmoney/${user._id}`)
                             }} >Send Money</button>
                         </div>

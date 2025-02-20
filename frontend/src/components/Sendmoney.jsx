@@ -8,7 +8,7 @@ export function Sendmoney() {
     const[amount,setamount] = useState("")
 
     const{fetchData} = useContext(MyContext)
-    const {receiverId} = useContext(MyContext)
+
     const {receiverName,setreceiverName} = useContext(MyContext)
 
     const navigate = useNavigate()
@@ -30,7 +30,7 @@ export function Sendmoney() {
 
     useEffect(() => {
         fetchReceiverDetails()
-    },[receiverId])
+    },[])
 
     return (
         <div className="flex justify-center items-center h-screen w-screen bg-gray-200" >
@@ -57,7 +57,7 @@ export function Sendmoney() {
                     onClick={async () => {
                         const token = localStorage.getItem("token")
                         const response = await axios.patch("http://localhost:3000/api/v1/account/transfer",{
-                            receiverId,
+                            rId,
                             amount
                         },{
                             headers: {
