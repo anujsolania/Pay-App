@@ -13,7 +13,7 @@ export function Signin() {
         const navigate = useNavigate()
 
         async function loginHandler() {
-            const response = await axios.post("http://localhost:3000/api/v1/user/signin",{
+            const response = await axios.post(`${import.meta.env.VITE_URL}/user/signin`,{
                 email,
                 password
             })

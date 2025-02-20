@@ -13,7 +13,7 @@ export function Users() {
 
     async function fetchUsers() {
         const token = localStorage.getItem("token")
-        const response = await axios.get("http://localhost:3000/api/v1/user/bulk",{
+        const response = await axios.get(`${import.meta.env.VITE_URL}/user/bulk`,{
             headers: {
                 Authorization: token
             }
@@ -31,7 +31,7 @@ export function Users() {
                 fetchUsers()
             } else {
             const token = localStorage.getItem("token")
-            const response = await axios.get(`http://localhost:3000/api/v1/user/bulk?filter=${filter}`,{
+            const response = await axios.get(`${import.meta.env.VITE_URL}/user/bulk?filter=${filter}`,{
                 headers: {
                     Authorization: token
                 }

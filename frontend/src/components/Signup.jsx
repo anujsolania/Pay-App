@@ -50,7 +50,7 @@ export function Signup() {
             <Link className="rounded-md bg-black text-white w-[90%] text-center" style={{padding: "5px"}} 
             onClick={async () => {
                 try {
-                    const response = await axios.post("http://localhost:3000/api/v1/user/signup",{
+                    const response = await axios.post(`${import.meta.env.VITE_URL}/user/signup`,{
                         firstname,
                         lastname,
                         email,

@@ -19,7 +19,7 @@ export function Sendmoney() {
     async function fetchReceiverDetails() {
 
         const token = localStorage.getItem("token")
-        const response = await axios.get(`http://localhost:3000/api/v1/account/receiverdetails/${rId}`,{
+        const response = await axios.get(`${import.meta.env.VITE_URL}/account/receiverdetails/${rId}`,{
             headers: {
                 Authorization: token
             }
@@ -56,7 +56,7 @@ export function Sendmoney() {
                     <Link className="border-2 border-green-500 rounded bg-green-500 text-white text-sm text-center" style={{padding: "3px 4px"}} 
                     onClick={async () => {
                         const token = localStorage.getItem("token")
-                        const response = await axios.patch("http://localhost:3000/api/v1/account/transfer",{
+                        const response = await axios.patch(`${import.meta.env.VITE_URL}/account/transfer`,{
                             rId,
                             amount
                         },{

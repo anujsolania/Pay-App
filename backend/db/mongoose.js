@@ -1,5 +1,6 @@
-
 const mongoose = require("mongoose")
+
+require("dotenv").config()
 mongoose.connect("mongodb+srv://anujsolania:scam2022@cluster0.kvu08ja.mongodb.net/Pay-App")
 .then(() => {console.log("connected to mongoDB")})
 .catch((error) => {console.error("connection error", error)})
