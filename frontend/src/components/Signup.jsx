@@ -61,11 +61,14 @@ export function Signup() {
                         email,
                         password
                     })
-                    if (response.data.token) {
+                    const token = response.data.token
+                    if (token) {
                         localStorage.setItem("token",response.data.token)
                         await fetchData()
                         navigate("/dashboard")
                         toast.success(response.data.mssg)
+                    } else {
+                        toast(response.data.mssg)
                     }
                 } catch (error) {
                     toast.error(error.response.data.error)

@@ -26,7 +26,9 @@ export function Signin() {
                 toast.success(response.data.mssg);
                 fetchData()
                 navigate("/dashboard");
-            } 
+            } else {
+                toast(response.data.mssg)
+            }
         } catch(error) {
                 toast.error(error.response.data.error);
             }
