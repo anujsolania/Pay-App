@@ -11,6 +11,7 @@ export function Signup() {
     const[password,setpassword] = useState("")
 
     const { fetchData } = useContext(MyContext)
+    const {fetchUsers} = useContext(MyContext)
 
     const navigate = useNavigate()
 
@@ -65,6 +66,7 @@ export function Signup() {
                     if (token) {
                         localStorage.setItem("token",response.data.token)
                         await fetchData()
+                        await fetchUsers()
                         navigate("/dashboard")
                         toast.success(response.data.mssg)
                     } else {

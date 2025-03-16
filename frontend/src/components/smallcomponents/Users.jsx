@@ -1,25 +1,17 @@
 import axios from "axios"
-import { useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { MyContext } from "../contextAPI/Context"
 
 
 
 export function Users() {
-    const [allusers,setallusers] = useState()
+    const{allusers,setallusers, fetchUsers} = useContext(MyContext)
     const debounce = useRef()
 
 
     const navigate = useNavigate()
 
-    async function fetchUsers() {
-        const token = localStorage.getItem("token")
-        const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/user/bulk`,{
-            headers: {
-                Authorization: token
-            }
-        })
-        setallusers(response.data.allusers)
-    }
 
     async function filterUsers(filter) {
         if (debounce.current) {

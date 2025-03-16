@@ -11,6 +11,8 @@ export function MyProvider({ children }) {
     const [receiverId, setreceiverId] = useState(""); 
     const [receiverName, setreceiverName] = useState("");
 
+    const [allusers,setallusers] = useState()
+
 
     async function fetchData() {
         try {
@@ -35,6 +37,17 @@ export function MyProvider({ children }) {
         }
     }
 
+    //fetch users for dashboard page
+    async function fetchUsers() {
+        const token = localStorage.getItem("token")
+        const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/user/bulk`,{
+            headers: {
+                Authorization: token
+            }
+        })
+        setallusers(response.data.allusers)
+    }
+
     // Fetch data when the component mounts
     useEffect(() => {
         fetchData();
@@ -43,7 +56,8 @@ export function MyProvider({ children }) {
     return (
         <MyContext.Provider value={{ 
             balance, setbalance, firstname,setfirstname, lastname,setlastname,
-            receiverId, setreceiverId, receiverName, setreceiverName, fetchData
+            receiverId, setreceiverId, receiverName, setreceiverName, allusers, setallusers,
+            fetchData, fetchUsers
         }}>
             {children}
         </MyContext.Provider>

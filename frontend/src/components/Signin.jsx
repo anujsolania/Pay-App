@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 
 export function Signin() {
     const {fetchData} = useContext(MyContext)
+    const {fetchUsers} = useContext(MyContext)
 
         const[email,setemail] = useState("")
         const[password,setpassword] = useState("")
@@ -25,6 +26,7 @@ export function Signin() {
                 localStorage.setItem("token",response.data.token)
                 toast.success(response.data.mssg);
                 fetchData()
+                fetchUsers()
                 navigate("/dashboard");
             } else {
                 toast(response.data.mssg)
