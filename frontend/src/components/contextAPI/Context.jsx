@@ -39,13 +39,23 @@ export function MyProvider({ children }) {
 
     //fetch users for dashboard page
     async function fetchUsers() {
-        const token = localStorage.getItem("token")
-        const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/user/bulk`,{
-            headers: {
-                Authorization: token
+        try {
+            const token = localStorage.getItem("token")
+            if (!token) {
+                console.log("No token found!");
+
+                return;
             }
-        })
-        setallusers(response.data.allusers)
+
+            const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/user/bulk`,{
+                headers: {
+                    Authorization: token
+                }
+            })
+            setallusers(response.data.allusers)
+        } catch (error) {
+            console.error("Error fetching users:", error);
+        }
     }
 
     // Fetch data when the component mounts
