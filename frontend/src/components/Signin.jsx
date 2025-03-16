@@ -25,8 +25,8 @@ export function Signin() {
             if (token) {
                 localStorage.setItem("token",response.data.token)
                 toast.success(response.data.mssg);
-                fetchData()
-                fetchUsers()
+                await fetchData()
+                await fetchUsers()
                 navigate("/dashboard");
             } else {
                 toast(response.data.mssg)
