@@ -61,6 +61,7 @@ export function MyProvider({ children }) {
     // Fetch data when the component mounts
     useEffect(() => {
         fetchData();
+        fetchUsers();
     }, []);
 
     return (
