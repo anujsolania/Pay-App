@@ -32,7 +32,7 @@ export function Signin() {
                 toast(response.data.mssg)
             }
         } catch(error) {
-                toast.error(error.response.data.error);
+                toast.error(error.response.data.error || error.response.data.message);
             }
             
         }

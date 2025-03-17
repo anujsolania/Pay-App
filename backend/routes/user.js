@@ -1,4 +1,5 @@
 const express = require("express")
+const bcrypt = require("bcrypt")
 const {validateUser, signupSchema, signinSchema, updateinfoSchema} = require("../middleware/validateUser")
 const { jwt, jwtkey } = require("../jwt/jwt")
 const validateReq = require("../middleware/validateReq")
@@ -10,7 +11,8 @@ const userrouter = express.Router()
 userrouter.post("/signup",validateUser(signupSchema), async(req,res) => {
     const {firstname,lastname,email,password} = req.body
 
-    console.log(firstname,lastname,email,password)
+    const hashedPass = await bcrypt.hash(password, 10)
+
     try {
         const result = await User.findOne({email})
         if (result) {
@@ -20,7 +22,7 @@ userrouter.post("/signup",validateUser(signupSchema), async(req,res) => {
                 firstname,
                 lastname,
                 email,
-                password})
+                password: hashedPass})
             const userId = user._id
 
             await Account.create({
@@ -40,18 +42,17 @@ userrouter.post("/signup",validateUser(signupSchema), async(req,res) => {
 //SIGNIN
 userrouter.post("/signin",validateUser(signinSchema), async(req,res) => {
     const {email, password} = req.body
-    console.log(email)
     
-    const user = await User.findOne({email,password})
+    const user = await User.findOne({email})
+    if (!user) return res.status(400).json({ message: "Invalid email" });
+
+    const isMatch = await bcrypt.compare(password, user.password)
+    if (!isMatch) return res.status(400).json({ message: "Invalid Password" });
 
     try {
-        if (user) {
-            const userId = user._id
-            const token = jwt.sign({userId},jwtkey,{ expiresIn: "1h" })
-            return res.status(200).json({mssg: `Logged IN successfully as ${user.firstname}`,token: token})
-        } else if (!user) {
-            return res.json({mssg: "Incorrect inputs/User doesn't exists"})
-        }
+        const userId = user._id
+        const token = jwt.sign({userId},jwtkey,{ expiresIn: "1h" })
+        return res.status(200).json({mssg: `Logged IN successfully as ${user.firstname}`,token: token})
     } catch (error) {
         return res.json({mssg: "error while logginIN",error})
     }
@@ -61,7 +62,6 @@ userrouter.post("/signin",validateUser(signinSchema), async(req,res) => {
 //UPDATE INFO(USERNAME,PASS,)
 userrouter.patch("/updateinfo",validateUser(updateinfoSchema), validateReq, async (req,res) => {
     const {newfirstname,newlastname,newemail,newpassword}= req.body
-    console.log(newfirstname)
     
     const updateFields = {};
 
@@ -69,7 +69,10 @@ userrouter.patch("/updateinfo",validateUser(updateinfoSchema), validateReq, asyn
     if (newfirstname) updateFields.firstname = newfirstname;
     if (newlastname) updateFields.lastname = newlastname;
     if (newemail) updateFields.email = newemail;
-    if (newpassword) updateFields.password = newpassword;
+    if (newpassword) {
+        const hashedPass = await bcrypt.hash(newpassword, 10)
+        updateFields.password = hashedPass;
+    } 
 
     if (Object.keys(updateFields).length === 0) {
         return res.json({mssg: "No input received"})
@@ -83,7 +86,6 @@ userrouter.patch("/updateinfo",validateUser(updateinfoSchema), validateReq, asyn
             { firstname: newfirstname },
             { lastname: newlastname },
             { email: newemail },
-            { password: newpassword }
         ]})
 
         if (existingUser) {
