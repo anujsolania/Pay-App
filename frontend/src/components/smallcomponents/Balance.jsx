@@ -6,7 +6,7 @@ export function Balance() {
   
     return (
         <div className="flex font-semibold text-xl my-[4%] px-[2%]">
-            <h1>Your Balance ${balance}</h1>
+            <h1>Your Balance ₹{balance}</h1>
 
         </div>
     )
