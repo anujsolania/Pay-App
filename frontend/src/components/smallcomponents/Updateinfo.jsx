@@ -19,7 +19,7 @@ export default function Updateinfo({showupdateinfo,setshowupdateinfo}) {
                 <i className="ri-arrow-right-line border rounded p-1.5" onClick={() => {setshowupdateinfo(false)}} ></i>
                 </div>
                 
-                <div className="w-full flex flex-col justify-center items-center gap-8" >
+                <div className="w-1/2 sm:w-full flex flex-col justify-center items-center gap-8" >
                 <h1 className="font-semibold text-2xl" >Update Info </h1>
                 <p className="" >Enter only the fields you wish to update</p>
 
