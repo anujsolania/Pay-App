@@ -52,6 +52,8 @@ export default function Updateinfo({showupdateinfo,setshowupdateinfo}) {
 
                     if (newfirstname) { setfirstname(newfirstname), setnewfirstname("") }
                     if (newlastname) { setlastname(newlastname), setnewlastname("") }
+                    if (newemail) { setnewemail("") }
+                    if (newpassword) { setnewpassword("") }
 
 
                 } catch (error) {
