@@ -3,7 +3,7 @@ import { useContext, useState } from "react"
 import { MyContext } from "../contextAPI/Context"
 import { toast } from "react-toastify"
 
-export default function Updateinfo({showupdateinfo,setshowupdateinfo}) {
+export default function Updateinfo({showupdateinfo,setshowupdateinfo,style}) {
     const [newfirstname,setnewfirstname] = useState("")
     const [newlastname,setnewlastname] = useState("")
     const[newemail,setnewemail] = useState("")
@@ -12,8 +12,8 @@ export default function Updateinfo({showupdateinfo,setshowupdateinfo}) {
     const {setfirstname,setlastname} = useContext(MyContext)
 
     return (
-        <div className="h-screen w-screen fixed flex justify-center items-center backdrop-blur-xs transition-all duration-1000" style={{right: showupdateinfo ? "0px" : "-100vw"}} >
-            <div className="h-fit w-fit sm:w-90 flex flex-col justify-center items-center border border-black rounded-lg p-6 bg-white/70" >
+        <div className="h-screen w-screen fixed flex justify-center items-center backdrop-blur-xs transition-all duration-1000" style={style} >
+            <div className="h-fit w-fit flex flex-col justify-center items-center border border-black rounded-lg p-6 bg-white/70" >
 
                 <div className="w-full flex " >
                 <i className="ri-arrow-right-line border rounded p-1.5" onClick={() => {setshowupdateinfo(false)}} ></i>

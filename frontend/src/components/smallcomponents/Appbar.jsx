@@ -10,7 +10,7 @@ export function Appbar() {
     const name = firstname + " " + lastname
     return (
     <div style={{ padding: "2%"}}  >
-        <Navabar shownav={shownav} setshownav={setshownav} name={name}  ></Navabar>
+        <Navabar setshownav={setshownav} name={name} style={{right: shownav ? "0" : "-40vw"}}  ></Navabar>
         <div className="flex w-full" > 
         <div className="w-[50%] text-2xl font-extrabold" >
             <h1>Payments App</h1>
