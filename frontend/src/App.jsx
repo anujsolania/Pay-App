@@ -17,12 +17,10 @@ function App() {
     <Routes>
       <Route path="/" element={<Signup/>} ></Route>
       <Route path="/signin" element={<Signin/>} ></Route>
-      <Route path="/sendmoney/:rId" element={
-        <ProtectedRoute>
-          <Sendmoney/>
-        </ProtectedRoute>
-      } ></Route>
-      <Route path="/dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>} ></Route>
+      <Route element={<ProtectedRoute/>}>
+      <Route path="/sendmoney/:rId" element={<Sendmoney/>}></Route>
+      <Route path="/dashboard" element={<Dashboard/>} ></Route>
+      </Route>
     </Routes>
     <ToastContainer />
     </>
