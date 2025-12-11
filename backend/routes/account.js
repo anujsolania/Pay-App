@@ -67,7 +67,6 @@ accountrouter.post("/add-money",validateReq, async (req,res) => {
 })
 
 accountrouter.post("/verify-payment",validateReq, async (req,res) => {
-    const userId = req.userId
 
     try {
     const {razorpay_payment_id, razorpay_order_id, razorpay_signature,} = req.body;
@@ -87,11 +86,10 @@ accountrouter.post("/verify-payment",validateReq, async (req,res) => {
     const paymentInfo = await razorpay.orders.fetch(razorpay_order_id);
 
     const amount = paymentInfo.amount / 100; // convert back to rupees
-    const userId = req.user.id;
 
     // 1. Update wallet balance
     await Account.updateOne(
-        { userId: userId },
+        { userId: req.userId },
         { $inc: { balance: amount } }
     );
 
