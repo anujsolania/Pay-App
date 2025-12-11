@@ -1,6 +1,6 @@
 import axios from "axios"
 import { useState } from "react"
-import openRazorpay from "./store/Razorpay"
+import openRazorpay from "./store/RazorpayPopup"
 
 const Addmoney = () => {
     const [amt, setamt] = useState("")
@@ -11,7 +11,7 @@ const Addmoney = () => {
             return
         }
 
-        const response = await axios.post(`${import.meta.env.VITE_URL}/payment/addmoney`, {
+        const response = await axios.post(`${import.meta.env.VITE_URL}/api/v1/account/add-money`, {
             amount: Number(amt)
         }, {
             headers: {
@@ -35,7 +35,10 @@ const Addmoney = () => {
                 <input type="text" placeholder="Enter Amount to Add" className="border rounded px-2 py-1 w-full mb-4" 
                 value={amt} onChange={(e) => setamt(e.target.value)} ></input>
                 <button className="bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-600" 
-                onClick={ () => {handleAddMoney}} >Proceed to Pay</button>
+                onClick={ () => {
+                    console.log(amt)
+                    console.log("Clicked")
+                    handleAddMoney()}} >Proceed to Pay</button>
             </div>
             </div>
         </div>

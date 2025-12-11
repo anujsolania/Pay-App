@@ -1,4 +1,4 @@
-const { default: axios } = require("axios");
+import axios from "axios";
 
 const openRazorpay = (data) => {
   const options = {
@@ -12,7 +12,7 @@ const openRazorpay = (data) => {
       // Send payment details to backend for verification
       try {
       const res = await axios.post(
-        "http://localhost:5000/api/verify-payment",response,
+        "http://localhost:5000/api/v1/account/verify-payment",response,
         {
             headers: {
                 Authorization: localStorage.getItem("token")
