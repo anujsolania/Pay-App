@@ -1,6 +1,6 @@
 import { useContext, useState } from "react"
 import Navabar from "./Navbar"
-import { MyContext } from "../contextAPI/Context"
+import { MyContext } from "../store/Context"
 
 export function Appbar() {
     const {firstname,lastname, fetchData} = useContext(MyContext)

@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useContext, useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { MyContext } from "../contextAPI/Context"
+import { MyContext } from "../store/Context"
 
 
 

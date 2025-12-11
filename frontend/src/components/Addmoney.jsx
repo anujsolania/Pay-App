@@ -1,4 +1,6 @@
+import axios from "axios"
 import { useState } from "react"
+import openRazorpay from "./store/Razorpay"
 
 const Addmoney = () => {
     const [amt, setamt] = useState("")
@@ -8,6 +10,16 @@ const Addmoney = () => {
             alert("Please enter a valid amount")
             return
         }
+
+        const response = await axios.post(`${import.meta.env.VITE_URL}/payment/addmoney`, {
+            amount: Number(amt)
+        }, {
+            headers: {
+                Authorization: localStorage.getItem("token")
+            }
+        })
+
+        openRazorpay(response.data)
     }
 
 

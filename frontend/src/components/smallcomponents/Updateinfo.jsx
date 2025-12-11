@@ -1,6 +1,6 @@
 import axios from "axios"
 import { useContext, useState } from "react"
-import { MyContext } from "../contextAPI/Context"
+import { MyContext } from "../store/Context"
 import { toast } from "react-toastify"
 
 export default function Updateinfo({showupdateinfo,setshowupdateinfo,style}) {

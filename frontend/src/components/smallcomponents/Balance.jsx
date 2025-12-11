@@ -1,5 +1,5 @@
 import { useContext } from "react"
-import { MyContext } from "../contextAPI/Context"
+import { MyContext } from "../store/Context"
 
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";

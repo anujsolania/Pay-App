@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { MyContext } from "./contextAPI/Context";
+import { MyContext } from "./store/Context";
 
 export function Signup() {
     const [firstname,setfirstname] = useState("")
