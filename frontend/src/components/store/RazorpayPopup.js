@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const openRazorpay = (data) => {
+
+const openRazorpay = (data,navigate) => {
   const options = {
     key: data.key,                
     amount: data.amount,   
@@ -22,13 +23,19 @@ const openRazorpay = (data) => {
 
       if (res.data.success) {
         alert("Money added successfully!");
-        window.location.reload();
+        navigate("/dashboard");
       } else {
         alert("Payment verification failed");
       }
       } catch (error) {
         console.error("Error verifying payment:", error);
         alert("An error occurred during payment verification");
+      }
+    },
+    modal: {
+      ondismiss: function () {
+        alert("Payment cancelled. No money was added to your wallet.");
+        navigate("/dashboard");
       }
     },
     theme: {

@@ -1,9 +1,12 @@
 import axios from "axios"
 import { useState } from "react"
 import openRazorpay from "./store/RazorpayPopup"
+import { useNavigate } from "react-router-dom"
 
 const Addmoney = () => {
     const [amt, setamt] = useState("")
+
+    const navigate = useNavigate()
 
     const handleAddMoney = async () => {
         if (!amt || Number(amt) <= 0) {
@@ -19,7 +22,7 @@ const Addmoney = () => {
             }
         })
 
-        openRazorpay(response.data)
+        openRazorpay(response.data, navigate)
     }
 
 
