@@ -26,6 +26,7 @@ const openRazorpay = (data,navigate) => {
         navigate("/dashboard");
       } else {
         alert("Payment verification failed");
+        navigate("/dashboard");
       }
       } catch (error) {
         console.error("Error verifying payment:", error);

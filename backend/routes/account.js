@@ -48,7 +48,7 @@ accountrouter.post("/add-money",validateReq, async (req,res) => {
     const options = {
       amount: amount * 100,
       currency: "INR",
-      receipt: "receipt_" + Date.now(),
+      receipt: `u_${userId}_${Date.now()}`,
     };
 
     const order = await razorpay.orders.create(options);
