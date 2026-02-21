@@ -30,7 +30,7 @@ userrouter.post("/signup",validateUser(signupSchema), async(req,res) => {
                 balance: Math.round(1 + Math.random() * 10000)
             })
 
-            const token = jwt.sign({userId},jwtkey,{ expiresIn: "1h" })
+            const token = jwt.sign({userId},jwtkey,{ expiresIn: "4h" })
             return res.json({mssg: "User created successfully",token: token})
         } 
     } catch (error) {
@@ -51,7 +51,7 @@ userrouter.post("/signin",validateUser(signinSchema), async(req,res) => {
 
     try {
         const userId = user._id
-        const token = jwt.sign({userId},jwtkey,{ expiresIn: "1h" })
+        const token = jwt.sign({userId},jwtkey,{ expiresIn: "10s" })
         return res.status(200).json({mssg: `Logged IN successfully as ${user.firstname}`,token: token})
     } catch (error) {
         return res.json({mssg: "error while logginIN",error})
