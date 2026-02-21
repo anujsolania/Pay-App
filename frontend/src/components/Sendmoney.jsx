@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from "react"
 import { MyContext} from "./store/Context";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import openRazorpay from "./store/RazorpayPopup";
 
 export function Sendmoney() {
     const[amount,setamount] = useState("")
@@ -26,6 +27,27 @@ export function Sendmoney() {
         })
         setreceiverName(response.data.name)
 
+    }
+
+    const transferMoney = async () => {
+        const token = localStorage.getItem("token")
+        if (amount<=0 || amount === "") {
+            return toast.error("Enter a valid amount")
+        }
+        const response = await axios.patch(`${import.meta.env.VITE_URL}/api/v1/account/transfer`,{
+            rId,
+            amount
+        },{
+            headers: {
+                Authorization: token
+            }
+        })
+
+        openRazorpay(response.data, navigate)
+
+        // toast.success(response.data.mssg)
+        fetchData()
+        // navigate("/dashboard")
     }
 
     useEffect(() => {
@@ -56,17 +78,10 @@ export function Sendmoney() {
                     <Link className="border-2 border-green-500 rounded bg-green-500 text-white text-sm text-center py-[3px] px-[4px]" 
                     onClick={async () => {
                         const token = localStorage.getItem("token")
-                        const response = await axios.patch(`${import.meta.env.VITE_URL}/api/v1/account/transfer`,{
-                            rId,
-                            amount
-                        },{
-                            headers: {
-                                Authorization: token
-                            }
-                        })
-                        toast.success(response.data.mssg)
-                        fetchData()
-                        navigate("/dashboard")
+                        if (amount<=0 || amount === "") {
+                            return toast.error("Enter a valid amount")
+                        }
+                        transferMoney()
                     }} >Initiate Transfer</Link>
                 </div>
 

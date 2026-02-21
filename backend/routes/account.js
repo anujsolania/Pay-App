@@ -42,7 +42,7 @@ accountrouter.post("/add-money",validateReq, async (req,res) => {
 
     try {
 
-    if (!amount || amount <= 0) {
+    if (!amount || amount <= 0 || amount < 1) {
         return res.json({success: false, message : "Invalid amount"})
     }
     const options = {
@@ -53,12 +53,17 @@ accountrouter.post("/add-money",validateReq, async (req,res) => {
 
     const order = await razorpay.orders.create(options);
 
+    // return res.json({
+    //   success: true,
+    //   orderId: order.id,
+    //   amount: order.amount, // already in paise
+    //   key: process.env.RAZORPAY_KEY_ID,
+    // });
+
     return res.json({
-      success: true,
-      orderId: order.id,
-      amount: order.amount, // already in paise
-      key: process.env.RAZORPAY_KEY_ID,
-    });
+        order: order,
+        key: process.env.RAZORPAY_KEY_ID,
+    })
 
     } catch (err) {
     console.log("error is:",err);
@@ -121,35 +126,53 @@ accountrouter.patch("/transfer",validateReq, async (req,res) => {
     }
 
     try {
+        const options = {
+            amount: amount * 100,
+            currency: "INR",
+            // receipt: `t_${senderId}_${rId}_${Date.now()}`,
+        };
 
-    const session = await mongoose.startSession() //start session
-    session.startTransaction()  //start transaction
+        const order = await razorpay.orders.create(options);
 
-    const senderAcc = await Account.findOne({userId: senderId}).session(session);
-    const receiverAcc = await Account.findOne({userId: rId}).session(session);
-
-    if (senderAcc.balance < amount) {
-        await session.abortTransaction()  //abort transaction
-        session.endSession();
-        return res.json({mssg: "Not enough money"})
-    } else if (!receiverAcc) {
-        await session.abortTransaction()  //abort transaction
-        session.endSession();
-        return res.json({mssg: "Receiver account not found"})
-    }
-
-    await Account.updateOne({userId: senderId},{$inc: {balance: -amount}}).session(session)  //part of session
-    await Account.updateOne({userId: rId},{$inc: {balance: amount}}).session(session)  //part of session
-
-    await session.commitTransaction()
-    session.endSession()
-    return res.status(200).json({ mssg: "Transaction successful" }); 
-
+        return res.json({
+            order: order,
+            key: process.env.RAZORPAY_KEY_ID,
+        });
     } catch (error) {
-        await session.abortTransaction()
-        session.endSession()
-        return res.status(500).json({mssg : "Transcation failed due to an error", error})
+        console.log("error is:",err);
+        res.status(500).json({ success: false, message: "Some Server Error while transfer money" });
     }
+
+    // try {
+
+    // const session = await mongoose.startSession() //start session
+    // session.startTransaction()  //start transaction
+
+    // const senderAcc = await Account.findOne({userId: senderId}).session(session);
+    // const receiverAcc = await Account.findOne({userId: rId}).session(session);
+
+    // if (senderAcc.balance < amount) {
+    //     await session.abortTransaction()  //abort transaction
+    //     session.endSession();
+    //     return res.json({mssg: "Not enough money"})
+    // } else if (!receiverAcc) {
+    //     await session.abortTransaction()  //abort transaction
+    //     session.endSession();
+    //     return res.json({mssg: "Receiver account not found"})
+    // }
+
+    // await Account.updateOne({userId: senderId},{$inc: {balance: -amount}}).session(session)  //part of session
+    // await Account.updateOne({userId: rId},{$inc: {balance: amount}}).session(session)  //part of session
+
+    // await session.commitTransaction()
+    // session.endSession()
+    // return res.status(200).json({ mssg: "Transaction successful" }); 
+
+    // } catch (error) {
+    //     await session.abortTransaction()
+    //     session.endSession()
+    //     return res.status(500).json({mssg : "Transcation failed due to an error", error})
+    // }
 })
 
 

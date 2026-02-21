@@ -9,7 +9,7 @@ const Addmoney = () => {
     const navigate = useNavigate()
 
     const handleAddMoney = async () => {
-        if (!amt || Number(amt) <= 0) {
+        if (!amt || Number(amt) <= 0 || Number(amt) < 1) {
             alert("Please enter a valid amount")
             return
         }
@@ -21,6 +21,8 @@ const Addmoney = () => {
                 Authorization: localStorage.getItem("token")
             }
         })
+
+        console.log(response.data)
 
         openRazorpay(response.data, navigate)
     }

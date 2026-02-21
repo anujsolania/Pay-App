@@ -1,14 +1,15 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 
 
 const openRazorpay = (data,navigate) => {
   const options = {
     key: data.key,                
-    amount: data.amount,   
+    amount: data.order.amount,   
     currency: "INR",
     name: "My Wallet",
     description: "Add Money",
-    order_id: data.orderId,
+    order_id: data.order.id,
     handler: async function (response) {
       // Send payment details to backend for verification
       try {
@@ -22,7 +23,7 @@ const openRazorpay = (data,navigate) => {
       );
 
       if (res.data.success) {
-        alert("Money added successfully!");
+        toast.success("Payment successful!");
         navigate("/dashboard");
       } else {
         alert("Payment verification failed");
