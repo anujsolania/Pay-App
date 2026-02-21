@@ -1,9 +1,11 @@
 import axios from "axios"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import openRazorpay from "./store/RazorpayPopup"
 import { useNavigate } from "react-router-dom"
+import { MyContext } from "./store/Context"
 
 const Addmoney = () => {
+     const{fetchData} = useContext(MyContext)
     const [amt, setamt] = useState("")
 
     const navigate = useNavigate()
@@ -25,6 +27,9 @@ const Addmoney = () => {
         console.log(response.data)
 
         openRazorpay(response.data, navigate)
+
+        fetchData()
+        
     }
 
 

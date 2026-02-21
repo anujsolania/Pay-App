@@ -17,7 +17,19 @@ const accountSchema = new mongoose.Schema({
     balance: { type:Number, required: true }
 })
 
+const transactionSchema = new mongoose.Schema({
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true },
+    receiverId: { type: mongoose.Schema.Types.ObjectId, ref: "user"},
+    orderId: { type: String, required: true },
+    amount: { type: Number, required: true },
+    // date: { type: Date, default: Date.now },
+    type: { type: String, enum: ["TRANSFER", "ADD_MONEY"], required: true },
+    status: {type: String, enum: ["PENDING", "SUCCESS"], required: true },
+    rzpPaymentId: { type: String },
+})
+
 const User = mongoose.model("user",userSchema)
 const Account = mongoose.model("account",accountSchema)
+const Transaction = mongoose.model("transaction",transactionSchema)
 
-module.exports = { User,Account } 
+module.exports = { User,Account,Transaction } 

@@ -1,6 +1,6 @@
 const express = require("express")
 const validateReq = require("../middleware/validateReq")
-const { User, Account } = require("../db/mongoose")
+const { User, Account, Transaction } = require("../db/mongoose")
 const mongoose = require("mongoose")
 
 const accountrouter = express.Router()
@@ -53,6 +53,14 @@ accountrouter.post("/add-money",validateReq, async (req,res) => {
 
     const order = await razorpay.orders.create(options);
 
+    await Transaction.create({
+        userId: userId,
+        amount: amount,
+        orderId: order.id,
+        type: "ADD_MONEY",
+        status: "PENDING"
+    })
+
     // return res.json({
     //   success: true,
     //   orderId: order.id,
@@ -87,16 +95,25 @@ accountrouter.post("/verify-payment",validateReq, async (req,res) => {
       return res.json({ success: false, message: "Invalid signature" });
     }
 
-    // Get amount from DB or razorpay
-    const paymentInfo = await razorpay.orders.fetch(razorpay_order_id);
+    const txn = await Transaction.findOne({orderId: razorpay_order_id})
 
-    const amount = paymentInfo.amount / 100; // convert back to rupees
+    if (!txn) {
+        return res.json({ success: false, message: "Transaction not found" });
+    }
+
+    if (txn.type == "ADD_MONEY") {
+        await Account.updateOne({userId: req.userId},{$inc: { balance: txn.amount }});
+    }
+    // // Get amount from DB or razorpay
+    // const paymentInfo = await razorpay.orders.fetch(razorpay_order_id);
+
+    // const amount = paymentInfo.amount / 100; // convert back to rupees
 
     // 1. Update wallet balance
-    await Account.updateOne(
-        { userId: req.userId },
-        { $inc: { balance: amount } }
-    );
+    // await Account.updateOne(
+    //     { userId: req.userId },
+    //     { $inc: { balance: amount } }
+    // );
 
     // 2. Record transaction
     // await prisma.transaction.create({
@@ -108,6 +125,27 @@ accountrouter.post("/verify-payment",validateReq, async (req,res) => {
     //     status: "SUCCESS",
     //   },
     // });
+
+    if (txn.type == "TRANSFER") {
+        
+        const session = await mongoose.startSession() //start session
+        session.startTransaction()  //start transaction
+
+        try {
+            await Account.updateOne({userId: txn.userId},{$inc: { balance: -txn.amount }}).session(session)  //part of session
+            await Account.updateOne({userId: txn.receiverId},{$inc: { balance: txn.amount }}).session(session)  //part of session
+
+            await session.commitTransaction()
+            session.endSession()
+        } catch (error) {
+            await session.abortTransaction()
+            session.endSession()
+            return res.status(500).json({mssg : "Transcation failed due to an error", error})
+        }
+        
+    }
+
+    await Transaction.updateOne({status: "SUCCESS", rzpPaymentId: razorpay_payment_id})
 
     return res.json({ success: true });
 
@@ -133,6 +171,15 @@ accountrouter.patch("/transfer",validateReq, async (req,res) => {
         };
 
         const order = await razorpay.orders.create(options);
+
+        await Transaction.create({
+            userId: senderId,
+            receiverId: rId,
+            amount: amount,
+            orderId: order.id,
+            type: "TRANSFER",
+            status: "PENDING"
+        })
 
         return res.json({
             order: order,
