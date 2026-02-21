@@ -51,7 +51,7 @@ userrouter.post("/signin",validateUser(signinSchema), async(req,res) => {
 
     try {
         const userId = user._id
-        const token = jwt.sign({userId},jwtkey,{ expiresIn: "10s" })
+        const token = jwt.sign({userId},jwtkey,{ expiresIn: "4h" })
         return res.status(200).json({mssg: `Logged IN successfully as ${user.firstname}`,token: token})
     } catch (error) {
         return res.json({mssg: "error while logginIN",error})
