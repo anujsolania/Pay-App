@@ -1,4 +1,4 @@
-import axios from "axios"
+import axios, { all } from "axios"
 import { useContext, useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { MyContext } from "../store/Context"
@@ -7,10 +7,17 @@ import { MyContext } from "../store/Context"
 
 export function Users() {
     const{allusers,setallusers, fetchUsers} = useContext(MyContext)
+
+    const[allTransactions,setallTransactions] = useState()
+    const[showTransactions, setShowTransactions] = useState(false)
+
     const debounce = useRef()
 
 
     const navigate = useNavigate()
+
+
+    const token = localStorage.getItem("token")
 
 
     async function filterUsers(filter) {
@@ -22,7 +29,6 @@ export function Users() {
             if (filter === "") {
                 fetchUsers()
             } else {
-            const token = localStorage.getItem("token")
             const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/user/bulk?filter=${filter}`,{
                 headers: {
                     Authorization: token
@@ -33,13 +39,44 @@ export function Users() {
         }, 300);
     }
 
+    const getTransactions = async () => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/account/transactions`,{
+                headers: {
+                    Authorization: token
+                }
+            })
+            console.log(response.data.transactions)
+            setallTransactions(response.data.transactions)
+        } catch (error) {
+            console.error("Error fetching transactions:", error);
+        }  
+    }
+
     useEffect(() => {
         fetchUsers()
+        // getTransactions()
     },[])
 
     return (
+        showTransactions ? (
+        <div className="flex flex-col" >
+            {allTransactions && allTransactions.length > 0 ? (
+                allTransactions.map(txn => (
+                    <div key={txn._id} className="flex justify-between border-b py-2 px-[2%]" >
+                        <p>{txn.type}</p>
+                        <p>{txn.amount}</p>
+                    </div>
+                ))) : <h1> no transactions </h1> } </div>) : (
         <div className="flex flex-col gap-6 px-[2%]">
-            <h1 className="font-bold text-xl" >Users</h1>
+            <div className="flex gap-12" >
+                <button className="font-bold text-lg border px-3 py-1 rounded-md bg-blue-300 text-white hover:bg-blue-600" >Users</button> 
+                <button className="font-bold text-lg border px-3 py-1 rounded-md bg-blue-500 text-white" 
+                onClick={() => {
+                    setShowTransactions(true)
+                    getTransactions()
+                }} >Transactions</button>
+            </div>
             <input className="w-full border rounded" style={{padding: "0.5%"}} type="text" placeholder=" Search users..."
             onChange={
                 (e) => {
@@ -70,6 +107,6 @@ export function Users() {
                 ))) : <h1>No users found</h1>
             }
             
-        </div>
+        </div>)
     )
 }
