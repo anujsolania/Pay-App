@@ -25,6 +25,15 @@ accountrouter.get("/balance",validateReq, async (req,res) => {
     const userId = req.userId
 
     try {
+        //General case - expiring all pending transactions (if > 15 mins)
+        await Transaction.updateMany(
+        {
+            status: "PENDING",
+            createdAt: {$lt: new Date(Date.now() - 15 * 60 * 1000)}
+        },
+        { status: "EXPIRED" }
+        )
+
         const account = await Account.findOne({userId: req.userId}).populate('userId')
         const balance = account.balance
         const firstname = account.userId.firstname
@@ -52,6 +61,9 @@ accountrouter.post("/add-money",validateReq, async (req,res) => {
     };
 
     const order = await razorpay.orders.create(options);
+
+    //expires previous pending add money transactions of the user
+    await Transaction.updateMany({userId: userId, type: "ADD_MONEY", status: "PENDING"}, {status: "EXPIRED"})
 
     await Transaction.create({
         userId: userId,
@@ -108,27 +120,6 @@ accountrouter.post("/verify-payment",validateReq, async (req,res) => {
     if (txn.type == "ADD_MONEY") {
         await Account.updateOne({userId: req.userId},{$inc: { balance: txn.amount }});
     }
-    // // Get amount from DB or razorpay
-    // const paymentInfo = await razorpay.orders.fetch(razorpay_order_id);
-
-    // const amount = paymentInfo.amount / 100; // convert back to rupees
-
-    // 1. Update wallet balance
-    // await Account.updateOne(
-    //     { userId: req.userId },
-    //     { $inc: { balance: amount } }
-    // );
-
-    // 2. Record transaction
-    // await prisma.transaction.create({
-    //   data: {
-    //     userId,
-    //     amount,
-    //     paymentId: razorpay_payment_id,
-    //     type: "ADD_MONEY",
-    //     status: "SUCCESS",
-    //   },
-    // });
 
     if (txn.type == "TRANSFER") {
         
@@ -149,13 +140,10 @@ accountrouter.post("/verify-payment",validateReq, async (req,res) => {
         
     }
 
-    console.log("current transaction:", txn)
-
-
     // txn.status = "SUCCESS" //1 method
     // txn.rzpPaymentId = razorpay_payment_id
     // await txn.save()
-    
+
     await Transaction.updateOne({orderId: razorpay_order_id},{status: "SUCCESS", rzpPaymentId: razorpay_payment_id}) //2 methods
 
     return res.json({ success: true });
@@ -200,37 +188,23 @@ accountrouter.patch("/transfer",validateReq, async (req,res) => {
         console.log("error is:",err);
         res.status(500).json({ success: false, message: "Some Server Error while transfer money" });
     }
+})
 
-    // try {
+accountrouter.post("/payment-cancel",validateReq, async (req,res) => {
+    const {orderId} = req.body
 
-    // const session = await mongoose.startSession() //start session
-    // session.startTransaction()  //start transaction
+    if (!orderId) {
+        return res.json({mssg : "Missing orderId"})
+    }
 
-    // const senderAcc = await Account.findOne({userId: senderId}).session(session);
-    // const receiverAcc = await Account.findOne({userId: rId}).session(session);
+    try {
+        await Transaction.updateOne({orderId: orderId, userId: req.userId, type: "TRANSFER", status: "PENDING"}, {status: "FAILED"})
+        return res.json({mssg : "Payment cancelled"})
 
-    // if (senderAcc.balance < amount) {
-    //     await session.abortTransaction()  //abort transaction
-    //     session.endSession();
-    //     return res.json({mssg: "Not enough money"})
-    // } else if (!receiverAcc) {
-    //     await session.abortTransaction()  //abort transaction
-    //     session.endSession();
-    //     return res.json({mssg: "Receiver account not found"})
-    // }
-
-    // await Account.updateOne({userId: senderId},{$inc: {balance: -amount}}).session(session)  //part of session
-    // await Account.updateOne({userId: rId},{$inc: {balance: amount}}).session(session)  //part of session
-
-    // await session.commitTransaction()
-    // session.endSession()
-    // return res.status(200).json({ mssg: "Transaction successful" }); 
-
-    // } catch (error) {
-    //     await session.abortTransaction()
-    //     session.endSession()
-    //     return res.status(500).json({mssg : "Transcation failed due to an error", error})
-    // }
+    } catch (error) {
+        console.log("error is:",err);
+        res.status(500).json({ success: false, message: "Some Server Error while cancelling payment" });
+    }
 })
 
 

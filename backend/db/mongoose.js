@@ -24,9 +24,9 @@ const transactionSchema = new mongoose.Schema({
     amount: { type: Number, required: true },
     // date: { type: Date, default: Date.now },
     type: { type: String, enum: ["TRANSFER", "ADD_MONEY"], required: true },
-    status: {type: String, enum: ["PENDING", "SUCCESS"], required: true },
-    rzpPaymentId: { type: String },
-})
+    status: {type: String, enum: ["PENDING", "SUCCESS","EXPIRED","FAILED"], required: true },
+    rzpPaymentId: { type: String }
+},{ timestamps: true })
 
 const User = mongoose.model("user",userSchema)
 const Account = mongoose.model("account",accountSchema)

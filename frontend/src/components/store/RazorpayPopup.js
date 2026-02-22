@@ -24,19 +24,32 @@ const openRazorpay = (data,navigate) => {
 
       if (res.data.success) {
         toast.success("Payment successful!");
-        navigate("/dashboard");
       } else {
         alert("Payment verification failed");
-        navigate("/dashboard");
       }
+      navigate("/dashboard");
       } catch (error) {
         console.error("Error verifying payment:", error);
         alert("An error occurred during payment verification");
       }
     },
     modal: {
-      ondismiss: function () {
-        alert("Payment cancelled. No money was added to your wallet.");
+      ondismiss: async function () {
+        //send orderId to backend to mark transaction as cancelled
+
+        try {
+          const res = await axios.post(`${import.meta.env.VITE_URL}/api/v1/account/payment-cancel`,{
+            orderId: data.order.id
+          },{
+            headers: {
+                Authorization: localStorage.getItem("token")
+            }
+          }) 
+          toast.info(res.data.mssg)
+        } catch (error) {
+          console.error("Error cancelling payment:", error);
+          toast.error("Error cancelling payment")
+        }
         navigate("/dashboard");
       }
     },
