@@ -101,6 +101,10 @@ accountrouter.post("/verify-payment",validateReq, async (req,res) => {
         return res.json({ success: false, message: "Transaction not found" });
     }
 
+    if (txn.status === "SUCCESS") {
+        return res.json({ success: true });
+    }
+
     if (txn.type == "ADD_MONEY") {
         await Account.updateOne({userId: req.userId},{$inc: { balance: txn.amount }});
     }
@@ -145,7 +149,14 @@ accountrouter.post("/verify-payment",validateReq, async (req,res) => {
         
     }
 
-    await Transaction.updateOne({status: "SUCCESS", rzpPaymentId: razorpay_payment_id})
+    console.log("current transaction:", txn)
+
+
+    // txn.status = "SUCCESS" //1 method
+    // txn.rzpPaymentId = razorpay_payment_id
+    // await txn.save()
+    
+    await Transaction.updateOne({orderId: razorpay_order_id},{status: "SUCCESS", rzpPaymentId: razorpay_payment_id}) //2 methods
 
     return res.json({ success: true });
 

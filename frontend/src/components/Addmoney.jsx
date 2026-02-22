@@ -7,12 +7,14 @@ import { MyContext } from "./store/Context"
 const Addmoney = () => {
      const{fetchData} = useContext(MyContext)
     const [amt, setamt] = useState("")
+    const[loading,setloading] = useState(false)
 
     const navigate = useNavigate()
 
     const handleAddMoney = async () => {
         if (!amt || Number(amt) <= 0 || Number(amt) < 1) {
             alert("Please enter a valid amount")
+            setloading(false)
             return
         }
 
@@ -27,6 +29,8 @@ const Addmoney = () => {
         console.log(response.data)
 
         openRazorpay(response.data, navigate)
+
+        setloading(false)
 
         fetchData()
         
@@ -45,10 +49,14 @@ const Addmoney = () => {
                 <input type="text" placeholder="Enter Amount to Add" className="border rounded px-2 py-1 w-full mb-4" 
                 value={amt} onChange={(e) => setamt(e.target.value)} ></input>
                 <button className="bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-600" 
+                disabled={loading}
+                  style={{
+                    opacity: loading ? 0.6 : 1,
+                    cursor: loading ? "not-allowed" : "pointer"
+                }}
                 onClick={ () => {
-                    console.log(amt)
-                    console.log("Clicked")
-                    handleAddMoney()}} >Proceed to Pay</button>
+                    setloading(true)
+                    handleAddMoney()}} >{loading ? "Proceeding" : "Proceed to Pay"}</button>
             </div>
             </div>
         </div>
