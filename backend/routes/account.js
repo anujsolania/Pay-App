@@ -207,5 +207,17 @@ accountrouter.post("/payment-cancel",validateReq, async (req,res) => {
     }
 })
 
+accountrouter.get("/transactions",validateReq, async (req,res) => {
+    const userId = req.userId
+
+    try {
+        const transactions = await Transaction.find({$or: [{userId: userId}, {receiverId: userId}]}).sort({createdAt: -1}).populate("receiverId", "firstname lastname").populate("userId", "firstname lastname")
+        return res.json({transactions})
+    } catch (error) {
+        console.log("error is:",err);
+        res.status(500).json({ success: false, message: "Some Server Error while fetching transactions" });
+    }
+})
+
 
 module.exports = accountrouter
