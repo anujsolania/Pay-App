@@ -198,7 +198,7 @@ accountrouter.post("/payment-cancel",validateReq, async (req,res) => {
     }
 
     try {
-        await Transaction.updateOne({orderId: orderId, userId: req.userId, type: "TRANSFER", status: "PENDING"}, {status: "FAILED"})
+        await Transaction.updateOne({orderId: orderId, userId: req.userId, status: "PENDING"}, {status: "FAILED"})
         return res.json({mssg : "Payment cancelled"})
 
     } catch (error) {
