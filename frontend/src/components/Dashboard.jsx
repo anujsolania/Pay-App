@@ -7,8 +7,10 @@ export function Dashboard() {
     <div>
       <Appbar></Appbar>
       <hr className="border-t border-gray-200"></hr>
-      <Balance></Balance>
-      <UsersAnsTransactions></UsersAnsTransactions>
+      <div className="flex flex-col gap-6">
+        <Balance></Balance>
+        <UsersAnsTransactions></UsersAnsTransactions>
+      </div>
     </div>
   );
 }
