@@ -67,11 +67,21 @@ export function UsersAnsTransactions() {
   return (
     <div className="flex flex-col gap-6 px-[2%]">
       <div className="flex gap-12">
-        <button className="font-bold text-lg border px-3 py-1 rounded-md bg-blue-300 text-white hover:bg-blue-600">
+        <button
+          className={`font-bold text-lg border px-3 py-1 rounded-md ${
+            showTransactions ? "bg-blue-600" : "bg-blue-300"
+          } text-white`}
+          onClick={() => {
+            setShowTransactions(false);
+            fetchUsers();
+          }}
+        >
           Users
         </button>
         <button
-          className="font-bold text-lg border px-3 py-1 rounded-md bg-blue-500 text-white"
+          className={`font-bold text-lg border px-3 py-1 rounded-md ${
+            showTransactions ? "bg-blue-300" : "bg-blue-600"
+          } text-white`}
           onClick={() => {
             setShowTransactions(true);
             getTransactions();
