@@ -1,4 +1,4 @@
-import axios, { all } from "axios";
+import axios from "axios";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MyContext } from "../store/Context";
@@ -14,32 +14,37 @@ export function UsersAnsTransactions() {
 
   // const [transactionFilter, setTransactionFilter] = useState("all");
   const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [localFilteredUsers, setLocalFilteredUsers] = useState(null);
 
   const debounce = useRef();
 
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
+  if (!token) {
+    navigate("/signin");
+    return;
+  }
   const decodeToken = jwtDecode(token);
   const userId = decodeToken.userId;
 
-  async function filterUsers(filter) {
+  function filterUsers(filter) {
     if (debounce.current) {
       clearTimeout(debounce.current);
     }
 
     debounce.current = setTimeout(() => {
-      if (filter === "") {
+      if (!filter) {
         // Reset to show all users
-        fetchUsers();
+        setLocalFilteredUsers(null);
       } else {
-        // Filter locally - replicating backend $regex functionality
+        // Filter locally from the full allusers list
         const filteredUsers = allusers.filter(
           (user) =>
             user.firstname.toLowerCase().includes(filter.toLowerCase()) ||
             user.lastname.toLowerCase().includes(filter.toLowerCase())
         );
-        setallusers(filteredUsers);
+        setLocalFilteredUsers(filteredUsers);
       }
     }, 300);
   }
@@ -63,9 +68,7 @@ export function UsersAnsTransactions() {
   };
 
   useEffect(() => {
-    console.log("1", allusers);
     fetchUsers();
-    console.log("2", allusers);
     // getTransactions()
   }, []);
 
@@ -74,7 +77,7 @@ export function UsersAnsTransactions() {
       <div className="flex gap-12">
         <button
           className={`font-bold text-lg border px-3 py-1 rounded-md ${
-            showTransactions ? "bg-blue-600" : "bg-blue-300"
+            !showTransactions ? "bg-blue-600" : "bg-blue-300"
           } text-white`}
           onClick={() => {
             setShowTransactions(false);
@@ -85,7 +88,7 @@ export function UsersAnsTransactions() {
         </button>
         <button
           className={`font-bold text-lg border px-3 py-1 rounded-md ${
-            showTransactions ? "bg-blue-300" : "bg-blue-600"
+            showTransactions ? "bg-blue-600" : "bg-blue-300"
           } text-white`}
           onClick={() => {
             setShowTransactions(true);
@@ -95,16 +98,19 @@ export function UsersAnsTransactions() {
           Transactions
         </button>
       </div>
-      <input
-        className="w-full border rounded"
-        style={{ padding: "0.5%" }}
-        type="text"
-        placeholder=" Search users..."
-        onChange={(e) => {
-          const filter = e.target.value;
-          filterUsers(filter);
-        }}
-      ></input>
+
+      {!showTransactions && (
+        <input
+          className="w-full border rounded"
+          style={{ padding: "0.5%" }}
+          type="text"
+          placeholder=" Search users..."
+          onChange={(e) => {
+            const filter = e.target.value;
+            filterUsers(filter);
+          }}
+        ></input>
+      )}
 
       {showTransactions ? (
         <div className="flex items-center gap-6 justify-between">
@@ -153,7 +159,10 @@ export function UsersAnsTransactions() {
           ></Transactions>
         </div>
       ) : (
-        <Users allusers={allusers} navigate={navigate}></Users>
+        <Users
+          allusers={localFilteredUsers ?? allusers}
+          navigate={navigate}
+        ></Users>
       )}
     </div>
   );
