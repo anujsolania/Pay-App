@@ -1,92 +1,117 @@
 import axios from "axios";
-import { useContext, useEffect, useState } from "react"
-import { MyContext} from "./store/Context";
+import { useContext, useEffect, useState } from "react";
+import { MyContext } from "./store/Context";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import openRazorpay from "./store/RazorpayPopup";
+import { set } from "mongoose";
 
 export function Sendmoney() {
-    const[amount,setamount] = useState("")
+  const [loading, setloading] = useState(false);
+  const [amount, setamount] = useState("");
 
-    const{fetchData} = useContext(MyContext)
+  const { fetchData } = useContext(MyContext);
 
-    const {receiverName,setreceiverName} = useContext(MyContext)
+  const { receiverName, setreceiverName } = useContext(MyContext);
 
-    const navigate = useNavigate()
+  const navigate = useNavigate();
 
-    const { rId } = useParams()
-    console.log
+  const { rId } = useParams();
+  console.log;
 
-    async function fetchReceiverDetails() {
+  async function fetchReceiverDetails() {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(
+      `${import.meta.env.VITE_URL}/api/v1/account/receiverdetails/${rId}`,
+      {
+        headers: {
+          Authorization: token,
+        },
+      }
+    );
+    setreceiverName(response.data.name);
+  }
 
-        const token = localStorage.getItem("token")
-        const response = await axios.get(`${import.meta.env.VITE_URL}/api/v1/account/receiverdetails/${rId}`,{
-            headers: {
-                Authorization: token
-            }
-        })
-        setreceiverName(response.data.name)
-
+  const transferMoney = async () => {
+    const token = localStorage.getItem("token");
+    if (amount <= 0 || amount === "") {
+      return toast.error("Enter a valid amount");
     }
+    const response = await axios.patch(
+      `${import.meta.env.VITE_URL}/api/v1/account/transfer`,
+      {
+        rId,
+        amount,
+      },
+      {
+        headers: {
+          Authorization: token,
+        },
+      }
+    );
 
-    const transferMoney = async () => {
-        const token = localStorage.getItem("token")
-        if (amount<=0 || amount === "") {
-            return toast.error("Enter a valid amount")
-        }
-        const response = await axios.patch(`${import.meta.env.VITE_URL}/api/v1/account/transfer`,{
-            rId,
-            amount
-        },{
-            headers: {
-                Authorization: token
-            }
-        })
+    openRazorpay(response.data, navigate);
 
-        openRazorpay(response.data, navigate)
+    setloading(false);
 
-        // toast.success(response.data.mssg)
-        fetchData()
-        // navigate("/dashboard")
-    }
+    // toast.success(response.data.mssg)
+    fetchData();
+    // navigate("/dashboard")
+  };
 
-    useEffect(() => {
-        fetchReceiverDetails()
-    },[])
+  useEffect(() => {
+    fetchReceiverDetails();
+  }, []);
 
-    return (
-        <div className="flex justify-center items-center h-screen w-screen bg-gray-200" >
-            <div className="rounded flex flex-col gap-15 bg-white py-[3%] px-[5%]" >
-                <p className="text-center text-2xl font-bold" >Send Money</p>
+  return (
+    <div className="flex justify-center items-center h-screen w-screen bg-gray-200">
+      <div className="rounded flex flex-col gap-15 bg-white py-[3%] px-[5%]">
+        <p className="text-center text-2xl font-bold">Send Money</p>
 
+        <div>
+          <div className="flex gap-2">
+            <button className="h-8 w-8 bg-green-500 rounded-full text-white">
+              {receiverName.charAt(0)}
+            </button>
+            <h1 className="font-semibold">{receiverName}</h1>
+          </div>
 
-                <div>
-
-                <div className="flex gap-2" >
-                <button className="h-8 w-8 bg-green-500 rounded-full text-white" >{receiverName.charAt(0)}</button>
-                <h1 className="font-semibold" >{receiverName}</h1>
-                </div>
-
-                <div className="flex flex-col gap-4">
-                    <div>
-                    <p className="text-sm font-semibold" >Amount (in Rs)</p>
-                    <input className="border rounded w-full " type="text" placeholder=" Enter amount"
-                    value={amount} onChange={(e) => {
-                        setamount(e.target.value)
-                    }} ></input>
-                    </div>
-                    <Link className="border-2 border-green-500 rounded bg-green-500 text-white text-sm text-center py-[3px] px-[4px]" 
-                    onClick={async () => {
-                        const token = localStorage.getItem("token")
-                        if (amount<=0 || amount === "") {
-                            return toast.error("Enter a valid amount")
-                        }
-                        transferMoney()
-                    }} >Initiate Transfer</Link>
-                </div>
-
-                </div>
+          <div className="flex flex-col gap-4">
+            <div>
+              <p className="text-sm font-semibold">Amount (in Rs)</p>
+              <input
+                className="border rounded w-full "
+                type="text"
+                placeholder=" Enter amount"
+                value={amount}
+                onChange={(e) => {
+                  setamount(e.target.value);
+                }}
+              ></input>
             </div>
+            <button
+              className="border-2 border-green-500 rounded bg-green-500 text-white text-sm text-center py-[3px] px-[4px]"
+              disabled={loading}
+              style={{
+                opacity: loading ? 0.6 : 1,
+                cursor: loading ? "not-allowed" : "pointer",
+              }}
+              onClick={() => {
+                setloading(true);
+                async () => {
+                  const token = localStorage.getItem("token");
+                  if (amount <= 0 || amount === "") {
+                    return toast.error("Enter a valid amount");
+                  }
+                  transferMoney();
+                };
+              }}
+            >
+              Initiate Transfer
+            </button>
+          </div>
         </div>
-    )
+      </div>
+    </div>
+  );
 }
