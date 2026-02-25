@@ -12,7 +12,7 @@ export function UsersAnsTransactions() {
   const [allTransactions, setallTransactions] = useState([]);
   const [showTransactions, setShowTransactions] = useState(false);
 
-  const [transactionFilter, setTransactionFilter] = useState("all");
+  // const [transactionFilter, setTransactionFilter] = useState("all");
   const [filteredTransactions, setFilteredTransactions] = useState([]);
 
   const debounce = useRef();
@@ -28,19 +28,18 @@ export function UsersAnsTransactions() {
       clearTimeout(debounce.current);
     }
 
-    debounce.current = setTimeout(async () => {
+    debounce.current = setTimeout(() => {
       if (filter === "") {
+        // Reset to show all users
         fetchUsers();
       } else {
-        const response = await axios.get(
-          `${import.meta.env.VITE_URL}/api/v1/user/bulk?filter=${filter}`,
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
+        // Filter locally - replicating backend $regex functionality
+        const filteredUsers = allusers.filter(
+          (user) =>
+            user.firstname.toLowerCase().includes(filter.toLowerCase()) ||
+            user.lastname.toLowerCase().includes(filter.toLowerCase())
         );
-        setallusers(response.data.users);
+        setallusers(filteredUsers);
       }
     }, 300);
   }
@@ -64,7 +63,9 @@ export function UsersAnsTransactions() {
   };
 
   useEffect(() => {
+    console.log("1", allusers);
     fetchUsers();
+    console.log("2", allusers);
     // getTransactions()
   }, []);
 
@@ -142,9 +143,7 @@ export function UsersAnsTransactions() {
         <div>
           <h1 className="text-xl font-semibold">All Users</h1>
         </div>
-      ) : (
-        <h1>No users found</h1>
-      )}
+      ) : null}
 
       {showTransactions && filteredTransactions ? (
         <div>

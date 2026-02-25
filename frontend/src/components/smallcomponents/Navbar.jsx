@@ -1,7 +1,6 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import Updateinfo from "./Updateinfo";
-import { MyContext } from "../store/Context";
 import { toast } from "react-toastify";
 
 export default function Navabar({ setshownav, style, name }) {

@@ -7,7 +7,9 @@ export const Users = ({ allusers, navigate }) => {
             <button className="w-8 h-8 border rounded-full">
               {user.firstname.charAt(0)}
             </button>
-            <h1>{user.firstname}</h1>
+            <h1>
+              {user.firstname} {user.lastname}
+            </h1>
           </div>
           <div className="w-[50%] flex justify-end">
             <button
@@ -23,6 +25,9 @@ export const Users = ({ allusers, navigate }) => {
       </div>
     ))
   ) : (
-    <h1>No users found</h1>
+    <h1 className="text-center my-10 text-gray-400 text-xl">
+      {" "}
+      no users found ...{" "}
+    </h1>
   );
 };

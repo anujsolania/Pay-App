@@ -56,12 +56,10 @@ userrouter.post("/signin", validateUser(signinSchema), async (req, res) => {
   try {
     const userId = user._id;
     const token = jwt.sign({ userId }, jwtkey, { expiresIn: "4h" });
-    return res
-      .status(200)
-      .json({
-        mssg: `Logged IN successfully as ${user.firstname}`,
-        token: token,
-      });
+    return res.status(200).json({
+      mssg: `Logged IN successfully as ${user.firstname}`,
+      token: token,
+    });
   } catch (error) {
     return res.json({ mssg: "error while logginIN", error });
   }
@@ -123,21 +121,13 @@ userrouter.patch(
 
 //SEARCH USER
 userrouter.get("/bulk", validateReq, async (req, res) => {
-  const filter = req.query.filter;
-
   try {
-    if (!filter) {
-      const allusers = await User.find({ _id: { $ne: req.userId } });
-      return res.json({ allusers });
-    }
-
-    const result = await User.find({
-      firstname: { $regex: filter, $options: "i" },
-    });
-    if (result.length === 0) {
-      return res.status(200).json({ mssg: "No matching user found" });
-    }
-    return res.status(200).json({ users: result });
+    // Always return all users except current user for frontend filtering
+    const allusers = await User.find(
+      { _id: { $ne: req.userId } },
+      { firstname: 1, lastname: 1, email: 1 } // Only send needed fields
+    );
+    return res.json({ allusers });
   } catch (error) {
     console.log(error);
     return res
