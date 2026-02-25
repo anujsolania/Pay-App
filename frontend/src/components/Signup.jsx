@@ -10,6 +10,8 @@ export function Signup() {
   const [email, setemail] = useState("");
   const [password, setpassword] = useState("");
 
+  const [loading, setloading] = useState(false);
+
   const { fetchData } = useContext(MyContext);
   const { fetchUsers } = useContext(MyContext);
 
@@ -82,7 +84,13 @@ export function Signup() {
         <div className="flex flex-col items-center gap-3 w-full mt-[5%]">
           <button
             className="rounded-md bg-black text-white w-[90%] p-[5px]"
+            disabled={loading}
+            style={{
+              opacity: loading ? 0.6 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
             onClick={async () => {
+              setloading(true);
               try {
                 const response = await axios.post(
                   `${import.meta.env.VITE_URL}/api/v1/user/signup`,
@@ -93,6 +101,7 @@ export function Signup() {
                     password,
                   }
                 );
+                setloading(false);
                 const token = response.data.token;
                 if (token) {
                   localStorage.setItem("token", response.data.token);
@@ -108,7 +117,7 @@ export function Signup() {
               }
             }}
           >
-            Sign Up
+            {loading ? "Signing Up...." : "Sign Up"}
           </button>
           <p className="font-medium">
             Already have an account?{" "}

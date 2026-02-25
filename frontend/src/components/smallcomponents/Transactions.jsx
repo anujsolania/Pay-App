@@ -1,5 +1,5 @@
 function getTransactionDetails(txn, userId) {
-  const isSender = txn.userId._id === userId;
+  const isSender = txn.userId?._id === userId;
   let mssg;
   let iconCharacter;
   let sign;
@@ -19,15 +19,15 @@ function getTransactionDetails(txn, userId) {
 
   if (!txn.receiverId) {
     mssg = "Added Money to Wallet";
-    iconCharacter = txn.userId.firstname.charAt(0).toUpperCase();
+    iconCharacter = txn.userId?.firstname.charAt(0).toUpperCase();
     sign = "+";
   } else if (isSender && txn.receiverId) {
-    mssg = `Sent to ${`${txn.receiverId.firstname} ${txn.receiverId.lastname}`}`;
-    iconCharacter = txn.receiverId.firstname.charAt(0).toUpperCase();
+    mssg = `Sent to ${`${txn.receiverId?.firstname} ${txn.receiverId?.lastname}`}`;
+    iconCharacter = txn.receiverId?.firstname.charAt(0).toUpperCase();
     sign = "-";
   } else {
-    mssg = `Received from ${`${txn.userId.firstname} ${txn.userId.lastname}`}`;
-    iconCharacter = txn.userId.firstname.charAt(0).toUpperCase();
+    mssg = `Received from ${`${txn.userId?.firstname} ${txn.userId?.lastname}`}`;
+    iconCharacter = txn.userId?.firstname.charAt(0).toUpperCase();
     sign = "+";
   }
 
@@ -43,6 +43,7 @@ function getTransactionDetails(txn, userId) {
 export const Transactions = ({ allTransactions, userId }) => {
   return (
     <div className="flex flex-col gap-2">
+      {console.log("1", allTransactions)}
       {allTransactions && allTransactions.length > 0 ? (
         allTransactions.map((txn) => {
           const { iconCharacter, mssg, sign, formattedDate, formattedTime } =
@@ -77,7 +78,10 @@ export const Transactions = ({ allTransactions, userId }) => {
           );
         })
       ) : (
-        <h1> no transactions </h1>
+        <h1 className="text-center my-10 text-gray-400 text-xl">
+          {" "}
+          no transactions yet ...{" "}
+        </h1>
       )}{" "}
     </div>
   );

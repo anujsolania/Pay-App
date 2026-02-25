@@ -9,8 +9,11 @@ import { jwtDecode } from "jwt-decode";
 export function UsersAnsTransactions() {
   const { allusers, setallusers, fetchUsers } = useContext(MyContext);
 
-  const [allTransactions, setallTransactions] = useState();
+  const [allTransactions, setallTransactions] = useState([]);
   const [showTransactions, setShowTransactions] = useState(false);
+
+  const [transactionFilter, setTransactionFilter] = useState("all");
+  const [filteredTransactions, setFilteredTransactions] = useState([]);
 
   const debounce = useRef();
 
@@ -54,6 +57,7 @@ export function UsersAnsTransactions() {
       );
       console.log(response.data);
       setallTransactions(response.data.transactions);
+      setFilteredTransactions(response.data.transactions);
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
@@ -102,9 +106,50 @@ export function UsersAnsTransactions() {
       ></input>
 
       {showTransactions ? (
+        <div className="flex items-center gap-6 justify-between">
+          <h1 className="text-xl font-semibold">All Transactions</h1>
+          {/* <option value="all">All Transactions</option> */}
+          <select
+            className="border rounded"
+            onChange={(e) => {
+              if (e.target.value === "sent") {
+                const sentTxns = allTransactions.filter(
+                  (txn) => txn.userId._id === userId && txn.receiverId
+                );
+                setFilteredTransactions(sentTxns);
+              } else if (e.target.value === "received") {
+                const receivedTxns = allTransactions.filter(
+                  (txn) => txn.receiverId?._id === userId
+                );
+                setFilteredTransactions(receivedTxns);
+              } else if (e.target.value === "added") {
+                const addedTxns = allTransactions.filter(
+                  (txn) => txn.userId._id === userId && !txn.receiverId
+                );
+                setFilteredTransactions(addedTxns);
+              } else {
+                setFilteredTransactions(allTransactions);
+              }
+            }}
+          >
+            <option value="all">All</option>
+            <option value="sent">Sent</option>
+            <option value="received">Received</option>
+            <option value="added">Added to Wallet</option>
+          </select>
+        </div>
+      ) : allusers && allusers.length > 0 ? (
+        <div>
+          <h1 className="text-xl font-semibold">All Users</h1>
+        </div>
+      ) : (
+        <h1>No users found</h1>
+      )}
+
+      {showTransactions && filteredTransactions ? (
         <div>
           <Transactions
-            allTransactions={allTransactions}
+            allTransactions={filteredTransactions}
             userId={userId}
           ></Transactions>
         </div>
