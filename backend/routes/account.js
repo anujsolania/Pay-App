@@ -252,7 +252,7 @@ accountrouter.get("/transactions", validateReq, async (req, res) => {
       hasMore: transactions.length === limit,
     });
   } catch (error) {
-    console.log("error is:", err);
+    console.log("error is:", error);
     res.status(500).json({
       success: false,
       message: "Some Server Error while fetching transactions",

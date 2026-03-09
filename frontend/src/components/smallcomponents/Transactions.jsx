@@ -49,7 +49,7 @@ export const Transactions = ({
   return (
     <>
       <div className="flex flex-col gap-2">
-        {console.log("1", allTransactions)}
+        {console.log("FILTERED", allTransactions)}
         {allTransactions && allTransactions.length > 0 ? (
           allTransactions.map((txn) => {
             const { iconCharacter, mssg, sign, formattedDate, formattedTime } =
@@ -91,8 +91,8 @@ export const Transactions = ({
         )}{" "}
       </div>
       {/* loadMore....div */}
-      <div ref={loaderRef} className="text-center m-5">
-        {hasMore ? "loading transactions...." : "no more transactions"}
+      <div ref={loaderRef} className="text-gray-500 text-center m-5">
+        {hasMore ? "loading transactions...." : "no more transactions . . ."}
       </div>
     </>
   );

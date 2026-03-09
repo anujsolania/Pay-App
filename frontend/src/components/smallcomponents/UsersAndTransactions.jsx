@@ -12,8 +12,7 @@ export function UsersAnsTransactions() {
   const [allTransactions, setallTransactions] = useState([]);
   const [showTransactions, setShowTransactions] = useState(false);
 
-  // const [transactionFilter, setTransactionFilter] = useState("all");
-  const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [transactionFilter, setTransactionFilter] = useState("all");
   const [localFilteredUsers, setLocalFilteredUsers] = useState(null);
 
   const [page, setPage] = useState(1);
@@ -72,11 +71,14 @@ export function UsersAnsTransactions() {
         }
       );
       const newTransactions = response.data.transactions;
-      console.log(response.data);
-      setallTransactions((prev) => [...prev, ...newTransactions]);
+      setallTransactions((prev) => {
+        const existingIds = new Set(prev.map((t) => t._id));
+        const uniqueIds = newTransactions.filter(
+          (t) => !existingIds.has(t._id)
+        );
+        return [...prev, ...uniqueIds];
+      });
       setHasMore(response.data.hasMore);
-      console.log(response.data.hasMore);
-      setFilteredTransactions((prev) => [...prev, ...newTransactions]);
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
@@ -84,7 +86,7 @@ export function UsersAnsTransactions() {
     setLoading(false);
   };
 
-  //OBSERVERR
+  //OBSERVER
   useEffect(() => {
     if (!hasMore || loading) return;
 
@@ -103,7 +105,7 @@ export function UsersAnsTransactions() {
     return () => {
       observer.disconnect();
     };
-  }, [hasMore]);
+  }, [hasMore, loading, showTransactions]);
 
   useEffect(() => {
     fetchUsers();
@@ -159,26 +161,8 @@ export function UsersAnsTransactions() {
           {/* <option value="all">All Transactions</option> */}
           <select
             className="border rounded"
-            onChange={(e) => {
-              if (e.target.value === "sent") {
-                const sentTxns = allTransactions.filter(
-                  (txn) => txn.userId._id === userId && txn.receiverId
-                );
-                setFilteredTransactions(sentTxns);
-              } else if (e.target.value === "received") {
-                const receivedTxns = allTransactions.filter(
-                  (txn) => txn.receiverId?._id === userId
-                );
-                setFilteredTransactions(receivedTxns);
-              } else if (e.target.value === "added") {
-                const addedTxns = allTransactions.filter(
-                  (txn) => txn.userId._id === userId && !txn.receiverId
-                );
-                setFilteredTransactions(addedTxns);
-              } else {
-                setFilteredTransactions(allTransactions);
-              }
-            }}
+            value={transactionFilter}
+            onChange={(e) => setTransactionFilter(e.target.value)}
           >
             <option value="all">All</option>
             <option value="sent">Sent</option>
@@ -192,10 +176,24 @@ export function UsersAnsTransactions() {
         </div>
       ) : null}
 
-      {showTransactions && filteredTransactions ? (
+      {showTransactions ? (
         <div>
           <Transactions
-            allTransactions={filteredTransactions}
+            allTransactions={
+              transactionFilter === "sent"
+                ? allTransactions.filter(
+                    (txn) =>
+                      txn.type === "TRANSFER" && txn.userId._id === userId
+                  )
+                : transactionFilter === "received"
+                ? allTransactions.filter(
+                    (txn) =>
+                      txn.type === "TRANSFER" && txn.receiverId?._id === userId
+                  )
+                : transactionFilter === "added"
+                ? allTransactions.filter((txn) => txn.type === "ADD_MONEY")
+                : allTransactions
+            }
             userId={userId}
             loaderRef={loaderRef}
             hasMore={hasMore}
