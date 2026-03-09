@@ -1,13 +1,12 @@
 import axios from "axios";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MyContext } from "../store/Context";
 import { Users } from "./Users";
 import { Transactions } from "./Transactions";
 import { jwtDecode } from "jwt-decode";
 
 export function UsersAnsTransactions() {
-  const { allusers, setallusers, fetchUsers } = useContext(MyContext);
+  const [allusers, setAllusers] = useState([]);
 
   const [allTransactions, setallTransactions] = useState([]);
   const [showTransactions, setShowTransactions] = useState(false);
@@ -15,11 +14,16 @@ export function UsersAnsTransactions() {
   const [transactionFilter, setTransactionFilter] = useState("all");
   const [localFilteredUsers, setLocalFilteredUsers] = useState(null);
 
+  const [userPage, setUserPage] = useState(1);
+  const [userHasMore, setUserHasMore] = useState(true);
+  const userLoaderRef = useRef(null);
+
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const loaderRef = useRef(null);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); //txns
+  const [userLoading, setUserLoading] = useState(false); // users
 
   const debounce = useRef();
 
@@ -33,6 +37,33 @@ export function UsersAnsTransactions() {
   const decodeToken = jwtDecode(token);
   const userId = decodeToken.userId;
 
+  const getUsers = async () => {
+    if (userLoading) return;
+    setUserLoading(true);
+    try {
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_URL
+        }/api/v1/user/bulk?page=${userPage}&limit=10`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      const newUsers = response.data.allusers;
+      setAllusers((prev) => {
+        const existingIds = new Set(prev.map((u) => u._id));
+        const unique = newUsers.filter((u) => !existingIds.has(u._id));
+        return [...prev, ...unique];
+      });
+      setUserHasMore(response.data.hasMore);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+    setUserLoading(false);
+  };
+
   function filterUsers(filter) {
     if (debounce.current) {
       clearTimeout(debounce.current);
@@ -40,10 +71,8 @@ export function UsersAnsTransactions() {
 
     debounce.current = setTimeout(() => {
       if (!filter) {
-        // Reset to show all users
         setLocalFilteredUsers(null);
       } else {
-        // Filter locally from the full allusers list
         const filteredUsers = allusers.filter(
           (user) =>
             user.firstname.toLowerCase().includes(filter.toLowerCase()) ||
@@ -86,9 +115,30 @@ export function UsersAnsTransactions() {
     setLoading(false);
   };
 
-  //OBSERVER
+  //USEROBSERVER
   useEffect(() => {
-    if (!hasMore || loading) return;
+    if (showTransactions || !userHasMore || userLoading) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      const target = entries[0];
+
+      if (target.isIntersecting) {
+        setUserPage((prev) => prev + 1);
+      }
+    });
+
+    if (userLoaderRef.current) {
+      observer.observe(userLoaderRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [userHasMore, userLoading, showTransactions]);
+
+  //TXNOBSERVER
+  useEffect(() => {
+    if (!hasMore || loading || !showTransactions) return;
 
     const observer = new IntersectionObserver((entries) => {
       const target = entries[0];
@@ -108,9 +158,8 @@ export function UsersAnsTransactions() {
   }, [hasMore, loading, showTransactions]);
 
   useEffect(() => {
-    fetchUsers();
-    // getTransactions()
-  }, []);
+    getUsers();
+  }, [userPage]);
 
   useEffect(() => {
     getTransactions();
@@ -125,7 +174,6 @@ export function UsersAnsTransactions() {
           } text-white`}
           onClick={() => {
             setShowTransactions(false);
-            fetchUsers();
           }}
         >
           Users
@@ -203,6 +251,9 @@ export function UsersAnsTransactions() {
         <Users
           allusers={localFilteredUsers ?? allusers}
           navigate={navigate}
+          userLoaderRef={userLoaderRef}
+          hasMore={userHasMore}
+          userLoading={userLoading}
         ></Users>
       )}
     </div>

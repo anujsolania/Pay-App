@@ -122,12 +122,24 @@ userrouter.patch(
 //SEARCH USER
 userrouter.get("/bulk", validateReq, async (req, res) => {
   try {
-    // Always return all users except current user for frontend filtering
-    const allusers = await User.find(
-      { _id: { $ne: req.userId } },
-      { firstname: 1, lastname: 1, email: 1 } // Only send needed fields
-    );
-    return res.json({ allusers });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const [allusers, total] = await Promise.all([
+      User.find(
+        { _id: { $ne: req.userId } },
+        { firstname: 1, lastname: 1, email: 1 }
+      )
+        .skip(skip)
+        .limit(limit),
+      User.countDocuments({ _id: { $ne: req.userId } }),
+    ]);
+
+    return res.json({
+      allusers,
+      hasMore: skip + allusers.length < total,
+    });
   } catch (error) {
     console.log(error);
     return res
