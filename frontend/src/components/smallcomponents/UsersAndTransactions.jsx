@@ -16,6 +16,12 @@ export function UsersAnsTransactions() {
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [localFilteredUsers, setLocalFilteredUsers] = useState(null);
 
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const loaderRef = useRef(null);
+
+  const [loading, setLoading] = useState(false);
+
   const debounce = useRef();
 
   const navigate = useNavigate();
@@ -50,27 +56,63 @@ export function UsersAnsTransactions() {
   }
 
   const getTransactions = async () => {
+    if (loading) return;
+
+    setLoading(true);
+
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_URL}/api/v1/account/transactions`,
+        `${
+          import.meta.env.VITE_URL
+        }/api/v1/account/transactions?page=${page}&limit=5`,
         {
           headers: {
             Authorization: token,
           },
         }
       );
+      const newTransactions = response.data.transactions;
       console.log(response.data);
-      setallTransactions(response.data.transactions);
-      setFilteredTransactions(response.data.transactions);
+      setallTransactions((prev) => [...prev, ...newTransactions]);
+      setHasMore(response.data.hasMore);
+      console.log(response.data.hasMore);
+      setFilteredTransactions((prev) => [...prev, ...newTransactions]);
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
+
+    setLoading(false);
   };
+
+  //OBSERVERR
+  useEffect(() => {
+    if (!hasMore || loading) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      const target = entries[0];
+
+      if (target.isIntersecting) {
+        setPage((prev) => prev + 1);
+      }
+    });
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [hasMore]);
 
   useEffect(() => {
     fetchUsers();
     // getTransactions()
   }, []);
+
+  useEffect(() => {
+    getTransactions();
+  }, [page]);
 
   return (
     <div className="flex flex-col gap-6 px-[2%]">
@@ -92,7 +134,6 @@ export function UsersAnsTransactions() {
           } text-white`}
           onClick={() => {
             setShowTransactions(true);
-            getTransactions();
           }}
         >
           Transactions
@@ -156,6 +197,8 @@ export function UsersAnsTransactions() {
           <Transactions
             allTransactions={filteredTransactions}
             userId={userId}
+            loaderRef={loaderRef}
+            hasMore={hasMore}
           ></Transactions>
         </div>
       ) : (
