@@ -98,7 +98,6 @@ export function Sendmoney() {
               onClick={() => {
                 setloading(true);
                 async () => {
-                  const token = localStorage.getItem("token");
                   if (amount <= 0 || amount === "") {
                     return toast.error("Enter a valid amount");
                   }
