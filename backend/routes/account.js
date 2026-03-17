@@ -117,41 +117,41 @@ accountrouter.post("/verify-payment", validateReq, async (req, res) => {
       return res.json({ success: false, message: "Transaction not found" });
     }
 
-    if (txn.status === "SUCCESS") {
-      return res.json({ success: true });
-    }
+    // if (txn.status === "SUCCESS") {
+    //   return res.json({ success: true });
+    // }
 
-    if (txn.type == "ADD_MONEY") {
-      await Account.updateOne(
-        { userId: req.userId },
-        { $inc: { balance: txn.amount } }
-      );
-    }
+    // if (txn.type == "ADD_MONEY") {
+    //   await Account.updateOne(
+    //     { userId: req.userId },
+    //     { $inc: { balance: txn.amount } }
+    //   );
+    // }
 
-    if (txn.type == "TRANSFER") {
-      const session = await mongoose.startSession(); //start session
-      session.startTransaction(); //start transaction
+    // if (txn.type == "TRANSFER") {
+    //   const session = await mongoose.startSession(); //start session
+    //   session.startTransaction(); //start transaction
 
-      try {
-        await Account.updateOne(
-          { userId: txn.userId },
-          { $inc: { balance: -txn.amount } }
-        ).session(session); //part of session
-        await Account.updateOne(
-          { userId: txn.receiverId },
-          { $inc: { balance: txn.amount } }
-        ).session(session); //part of session
+    //   try {
+    //     await Account.updateOne(
+    //       { userId: txn.userId },
+    //       { $inc: { balance: -txn.amount } }
+    //     ).session(session); //part of session
+    //     await Account.updateOne(
+    //       { userId: txn.receiverId },
+    //       { $inc: { balance: txn.amount } }
+    //     ).session(session); //part of session
 
-        await session.commitTransaction();
-        session.endSession();
-      } catch (error) {
-        await session.abortTransaction();
-        session.endSession();
-        return res
-          .status(500)
-          .json({ mssg: "Transcation failed due to an error", error });
-      }
-    }
+    //     await session.commitTransaction();
+    //     session.endSession();
+    //   } catch (error) {
+    //     await session.abortTransaction();
+    //     session.endSession();
+    //     return res
+    //       .status(500)
+    //       .json({ mssg: "Transcation failed due to an error", error });
+    //   }
+    // }
 
     // txn.status = "SUCCESS" //1 method
     // txn.rzpPaymentId = razorpay_payment_id
@@ -159,8 +159,8 @@ accountrouter.post("/verify-payment", validateReq, async (req, res) => {
 
     await Transaction.updateOne(
       { orderId: razorpay_order_id },
-      { status: "SUCCESS", rzpPaymentId: razorpay_payment_id }
-    ); //2 methods
+      { status: "VERIFYING", rzpPaymentId: razorpay_payment_id }
+    );
 
     return res.json({ success: true });
   } catch (err) {

@@ -1,11 +1,10 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
-
-const openRazorpay = (data,navigate) => {
+const openRazorpay = (data, navigate) => {
   const options = {
-    key: data.key,                
-    amount: data.order.amount,   
+    key: data.key,
+    amount: data.order.amount,
     currency: "INR",
     name: "My Wallet",
     description: "Add Money",
@@ -13,21 +12,22 @@ const openRazorpay = (data,navigate) => {
     handler: async function (response) {
       // Send payment details to backend for verification
       try {
-      const res = await axios.post(
-          `${import.meta.env.VITE_URL}/api/v1/account/verify-payment`,response,
-        {
+        const res = await axios.post(
+          `${import.meta.env.VITE_URL}/api/v1/account/verify-payment`,
+          response,
+          {
             headers: {
-                Authorization: localStorage.getItem("token")
-            }
-        }
-      );
+              Authorization: localStorage.getItem("token"),
+            },
+          }
+        );
 
-      if (res.data.success) {
-        toast.success("Payment successful!");
-      } else {
-        alert("Payment verification failed");
-      }
-      navigate("/dashboard");
+        if (res.data.success) {
+          toast.info("Payment received, verifying...");
+        } else {
+          alert("Payment verification failed");
+        }
+        navigate("/dashboard");
       } catch (error) {
         console.error("Error verifying payment:", error);
         alert("An error occurred during payment verification");
@@ -38,20 +38,24 @@ const openRazorpay = (data,navigate) => {
         //send orderId to backend to mark transaction as cancelled
 
         try {
-          const res = await axios.post(`${import.meta.env.VITE_URL}/api/v1/account/payment-cancel`,{
-            orderId: data.order.id
-          },{
-            headers: {
-                Authorization: localStorage.getItem("token")
+          const res = await axios.post(
+            `${import.meta.env.VITE_URL}/api/v1/account/payment-cancel`,
+            {
+              orderId: data.order.id,
+            },
+            {
+              headers: {
+                Authorization: localStorage.getItem("token"),
+              },
             }
-          }) 
-          toast.info(res.data.mssg)
+          );
+          toast.info(res.data.mssg);
         } catch (error) {
           console.error("Error cancelling payment:", error);
-          toast.error("Error cancelling payment")
+          toast.error("Error cancelling payment");
         }
         navigate("/dashboard");
-      }
+      },
     },
     theme: {
       color: "#111",
