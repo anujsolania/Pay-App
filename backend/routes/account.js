@@ -265,13 +265,46 @@ module.exports = accountrouter;
 
 //WEBHOOK
 accountrouter.post("/payment/webhook", async (req, res) => {
-  const verified = verifyWebhookSignature(req);
+  try {
+    const verified = verifyWebhookSignature(req);
 
-  if (!verified) {
-    return res.status(400).send("Invalid Signature");
+    if (!verified) {
+      return res.status(400).send("Invalid Signature");
+    }
+
+    const body = JSON.parse(req.body.toString());
+
+    console.log("rzpJSONBody-webhook", body);
+
+    const paymentId = body.payload.payment.entity.id;
+    const orderId = body.payload.payment.entity.order_id;
+    const status = body.payload.payment.entity.status;
+
+    const txn = await Transaction.findOne({ orderId });
+
+    if (!txn) {
+      return res.status(200).send("Txn not found");
+    }
+
+    if (txn.status == "SUCCESS") {
+      return res.status(200).send("Already Processed");
+    }
+
+    if (status.captured) {
+      txn.status = "SUCCESS";
+
+      //update DB for addmoney && transfer
+    }
+
+    if (status == "failed") {
+      txn.status = "FAILED";
+    }
+
+    await txn.save();
+
+    return res.status(200).send("OK");
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("Error");
   }
-
-  const body = JSON.parse(req.body.toString());
-
-  console.log("rzpJSONBody-webhook", body);
 });
