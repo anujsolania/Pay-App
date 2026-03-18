@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const accountrouter = express.Router();
 const crypto = require("crypto");
 const razorpay = require("../razorpay/razorpayInstance");
+const { verifyWebhookSignature } = require("../utils/verifyWebhookSignature");
 
 accountrouter.get("/receiverdetails/:userId", validateReq, async (req, res) => {
   const userId = req.params.userId;
@@ -261,3 +262,16 @@ accountrouter.get("/transactions", validateReq, async (req, res) => {
 });
 
 module.exports = accountrouter;
+
+//WEBHOOK
+accountrouter.post("/payment/webhook", async (req, res) => {
+  const verified = verifyWebhookSignature(req);
+
+  if (!verified) {
+    return res.status(400).send("Invalid Signature");
+  }
+
+  const body = JSON.parse(req.body.toString());
+
+  console.log("rzpJSONBody-webhook", body);
+});
