@@ -46,28 +46,43 @@ setInterval(async () => {
 
       const status = res.data.status;
 
-      if (status == "captured") {
+      const updateTxn = await Transaction.findOneAndUpdate(
+        {
+          orderId: orderId,
+          credited: false,
+        },
+        {
+          $set: {
+            status: "SUCCESS",
+            credited: true,
+          },
+        },
+        { new: true }
+      );
+
+      //ATOMICITY - only one will process either webhook or cron
+      if (updateTxn && status == "captured") {
         // txn.status = "SUCCESS";
-        if (txn.type == "ADD_MONEY") {
+        if (updateTxn.type == "ADD_MONEY") {
           await Account.updateOne(
-            { userId: txn.userId },
-            { $inc: { balance: txn.amount } }
+            { userId: updateTxn.userId },
+            { $inc: { balance: updateTxn.amount } }
           );
         }
 
-        if (txn.type == "TRANSFER") {
+        if (updateTxn.type == "TRANSFER") {
           const session = await mongoose.startSession();
           session.startTransaction();
 
           try {
             await Account.updateOne(
-              { userId: txn.userId },
-              { $inc: { balance: -txn.amount } }
+              { userId: updateTxn.userId },
+              { $inc: { balance: -updateTxn.amount } }
             ).session(session);
 
             await Account.updateOne(
-              { userId: txn.receiverId },
-              { $inc: { balance: txn.amount } }
+              { userId: updateTxn.receiverId },
+              { $inc: { balance: updateTxn.amount } }
             ).session(session);
 
             await session.commitTransaction();
@@ -81,11 +96,6 @@ setInterval(async () => {
               .send("error while money transfer via reconciliation");
           }
         }
-
-        await Transaction.updateOne(
-          { orderId: txn.orderId },
-          { status: "SUCCESS" }
-        );
       }
 
       if (status == "failed") {

@@ -40,6 +40,7 @@ const transactionSchema = new mongoose.Schema(
       required: true,
     },
     rzpPaymentId: { type: String },
+    credited: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

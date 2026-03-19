@@ -249,32 +249,43 @@ accountrouter.post("/payment/webhook", async (req, res) => {
       return res.status(200).send("Txn not found");
     }
 
-    if (txn.status == "SUCCESS") {
-      return res.status(200).send("Already Processed");
-    }
+    const updateTxn = await Transaction.findOneAndUpdate(
+      {
+        orderId: orderId,
+        credited: false,
+      },
+      {
+        $set: {
+          status: "SUCCESS",
+          credited: true,
+          rzpPaymentId: paymentId,
+        },
+      },
+      { new: true }
+    );
 
-    if (status == "captured") {
-      //update DB for addmoney
-      if (txn.type == "ADD_MONEY") {
+    //ATOMICITY - only one will process either webhook or cron
+    if (updateTxn && status == "captured") {
+      if (updateTxn.type == "ADD_MONEY") {
         await Account.updateOne(
           { userId: txn.userId },
           { $inc: { balance: txn.amount } }
         );
       }
 
-      if (txn.type == "TRANSFER") {
+      if (updateTxn.type == "TRANSFER") {
         const session = await mongoose.startSession();
         session.startTransaction();
 
         try {
           await Account.updateOne(
-            { userId: txn.userId },
-            { $inc: { balance: -txn.amount } }
+            { userId: updateTxn.userId },
+            { $inc: { balance: -updateTxn.amount } }
           ).session(session);
 
           await Account.updateOne(
             { userId: txn.receiverId },
-            { $inc: { balance: txn.amount } }
+            { $inc: { balance: updateTxn.amount } }
           ).session(session);
 
           await session.commitTransaction();
@@ -286,11 +297,6 @@ accountrouter.post("/payment/webhook", async (req, res) => {
           return res.status(500).send("Error while money transfer via webhook");
         }
       }
-
-      await Transaction.updateOne(
-        { orderId: orderId },
-        { status: "SUCCESS", rzpPaymentId: paymentId }
-      );
     }
 
     if (status == "failed") {
