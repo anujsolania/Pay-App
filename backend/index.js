@@ -48,7 +48,7 @@ setInterval(async () => {
 
       const updateTxn = await Transaction.findOneAndUpdate(
         {
-          orderId: orderId,
+          orderId: txn.orderId,
           credited: false,
         },
         {

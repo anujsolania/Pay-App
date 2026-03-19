@@ -144,6 +144,11 @@ accountrouter.patch("/transfer", validateReq, async (req, res) => {
       return res.json({ mssg: "Receiver does not exist" });
     }
 
+    const senderAccount = await Account.findOne({ userId: senderId });
+    if (!senderAccount || senderAccount.balance < amount) {
+      return res.json({ mssg: "Insufficient balance" });
+    }
+
     const options = {
       amount: amount * 100,
       currency: "INR",
@@ -268,8 +273,8 @@ accountrouter.post("/payment/webhook", async (req, res) => {
     if (updateTxn && status == "captured") {
       if (updateTxn.type == "ADD_MONEY") {
         await Account.updateOne(
-          { userId: txn.userId },
-          { $inc: { balance: txn.amount } }
+          { userId: updateTxn.userId },
+          { $inc: { balance: updateTxn.amount } }
         );
       }
 
@@ -284,7 +289,7 @@ accountrouter.post("/payment/webhook", async (req, res) => {
           ).session(session);
 
           await Account.updateOne(
-            { userId: txn.receiverId },
+            { userId: updateTxn.receiverId },
             { $inc: { balance: updateTxn.amount } }
           ).session(session);
 
