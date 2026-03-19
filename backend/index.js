@@ -100,7 +100,7 @@ setInterval(async () => {
 
       if (status == "failed") {
         await Transaction.updateOne(
-          { orderId: txn.orderId },
+          { orderId: txn.orderId, status: { $ne: "SUCCESS" } },
           { status: "FAILED" }
         );
       }

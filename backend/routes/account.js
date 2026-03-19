@@ -301,7 +301,7 @@ accountrouter.post("/payment/webhook", async (req, res) => {
 
     if (status == "failed") {
       await Transaction.updateOne(
-        { orderId: orderId },
+        { orderId: orderId, status: { $ne: "SUCCESS" } },
         { status: "FAILED", rzpPaymentId: paymentId }
       );
     }
