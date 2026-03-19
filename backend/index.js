@@ -2,10 +2,14 @@ const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
 const Router = require("./routes");
-const { Transaction } = require("./db/mongoose");
+const { Transaction, Account } = require("./db/mongoose");
+const { default: mongoose } = require("mongoose");
 const app = express();
 
-app.use("/api/v1/payment/webhook", express.raw({ type: "application/json" })); //need raw body to verify the signature
+app.use(
+  "/api/v1/account/payment/webhook",
+  express.raw({ type: "application/json" })
+); //need raw body to verify the signature
 
 app.use(express.json());
 app.use(cors());
@@ -29,7 +33,7 @@ setInterval(async () => {
   for (const txn of allTxns) {
     try {
       const res = await axios.get(
-        `https://api.razorpay.com/v1/payments/${txn.paymentId}`,
+        `https://api.razorpay.com/v1/payments/${txn.rzpPaymentId}`,
         {
           auth: {
             username: process.env.RAZORPAY_KEY_ID,
@@ -43,17 +47,55 @@ setInterval(async () => {
       const status = res.data.status;
 
       if (status == "captured") {
-        txn.status = "SUCCESS";
-        //do DB update of addmoney & transfer
+        // txn.status = "SUCCESS";
+        if (txn.type == "ADD_MONEY") {
+          await Account.updateOne(
+            { userId: txn.userId },
+            { $inc: { balance: txn.amount } }
+          );
+        }
+
+        if (txn.type == "TRANSFER") {
+          const session = await mongoose.startSession();
+          session.startTransaction();
+
+          try {
+            await Account.updateOne(
+              { userId: txn.userId },
+              { $inc: { balance: -txn.amount } }
+            ).session(session);
+
+            await Account.updateOne(
+              { userId: txn.receiverId },
+              { $inc: { balance: txn.amount } }
+            ).session(session);
+
+            await session.commitTransaction();
+            await session.endSession();
+          } catch (error) {
+            await session.abortTransaction();
+            await session.endSession();
+            console.error(error);
+            return res
+              .status(500)
+              .send("error while money transfer via reconciliation");
+          }
+        }
+
+        await Transaction.updateOne(
+          { orderId: txn.orderId },
+          { status: "SUCCESS" }
+        );
       }
 
       if (status == "failed") {
-        txn.status = "FAILED";
+        await Transaction.updateOne(
+          { orderId: txn.orderId },
+          { status: "FAILED" }
+        );
       }
-
-      await txn.save();
     } catch (error) {
       console.error("Reconciliation error", error);
     }
   }
-}, 10000);
+}, 5000);

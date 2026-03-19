@@ -1,12 +1,12 @@
 const express = require("express");
 const validateReq = require("../middleware/validateReq");
 const { User, Account, Transaction } = require("../db/mongoose");
-const mongoose = require("mongoose");
 
 const accountrouter = express.Router();
 const crypto = require("crypto");
 const razorpay = require("../razorpay/razorpayInstance");
 const { verifyWebhookSignature } = require("../utils/verifyWebhookSignature");
+const { default: mongoose, Mongoose } = require("mongoose");
 
 accountrouter.get("/receiverdetails/:userId", validateReq, async (req, res) => {
   const userId = req.params.userId;
@@ -118,46 +118,6 @@ accountrouter.post("/verify-payment", validateReq, async (req, res) => {
       return res.json({ success: false, message: "Transaction not found" });
     }
 
-    // if (txn.status === "SUCCESS") {
-    //   return res.json({ success: true });
-    // }
-
-    // if (txn.type == "ADD_MONEY") {
-    //   await Account.updateOne(
-    //     { userId: req.userId },
-    //     { $inc: { balance: txn.amount } }
-    //   );
-    // }
-
-    // if (txn.type == "TRANSFER") {
-    //   const session = await mongoose.startSession(); //start session
-    //   session.startTransaction(); //start transaction
-
-    //   try {
-    //     await Account.updateOne(
-    //       { userId: txn.userId },
-    //       { $inc: { balance: -txn.amount } }
-    //     ).session(session); //part of session
-    //     await Account.updateOne(
-    //       { userId: txn.receiverId },
-    //       { $inc: { balance: txn.amount } }
-    //     ).session(session); //part of session
-
-    //     await session.commitTransaction();
-    //     session.endSession();
-    //   } catch (error) {
-    //     await session.abortTransaction();
-    //     session.endSession();
-    //     return res
-    //       .status(500)
-    //       .json({ mssg: "Transcation failed due to an error", error });
-    //   }
-    // }
-
-    // txn.status = "SUCCESS" //1 method
-    // txn.rzpPaymentId = razorpay_payment_id
-    // await txn.save()
-
     await Transaction.updateOne(
       { orderId: razorpay_order_id },
       { status: "VERIFYING", rzpPaymentId: razorpay_payment_id }
@@ -179,6 +139,11 @@ accountrouter.patch("/transfer", validateReq, async (req, res) => {
   }
 
   try {
+    const receiver = await User.findById(rId);
+    if (!receiver) {
+      return res.json({ mssg: "Receiver does not exist" });
+    }
+
     const options = {
       amount: amount * 100,
       currency: "INR",
@@ -201,7 +166,7 @@ accountrouter.patch("/transfer", validateReq, async (req, res) => {
       key: process.env.RAZORPAY_KEY_ID,
     });
   } catch (error) {
-    console.log("error is:", err);
+    console.log("error is:", error);
     res.status(500).json({
       success: false,
       message: "Some Server Error while transfer money",
@@ -223,7 +188,7 @@ accountrouter.post("/payment-cancel", validateReq, async (req, res) => {
     );
     return res.json({ mssg: "Payment cancelled" });
   } catch (error) {
-    console.log("error is:", err);
+    console.log("error is:", error);
     res.status(500).json({
       success: false,
       message: "Some Server Error while cancelling payment",
@@ -261,8 +226,6 @@ accountrouter.get("/transactions", validateReq, async (req, res) => {
   }
 });
 
-module.exports = accountrouter;
-
 //WEBHOOK
 accountrouter.post("/payment/webhook", async (req, res) => {
   try {
@@ -290,17 +253,52 @@ accountrouter.post("/payment/webhook", async (req, res) => {
       return res.status(200).send("Already Processed");
     }
 
-    if (status.captured) {
-      txn.status = "SUCCESS";
+    if (status == "captured") {
+      //update DB for addmoney
+      if (txn.type == "ADD_MONEY") {
+        await Account.updateOne(
+          { userId: txn.userId },
+          { $inc: { balance: txn.amount } }
+        );
+      }
 
-      //update DB for addmoney && transfer
+      if (txn.type == "TRANSFER") {
+        const session = await mongoose.startSession();
+        session.startTransaction();
+
+        try {
+          await Account.updateOne(
+            { userId: txn.userId },
+            { $inc: { balance: -txn.amount } }
+          ).session(session);
+
+          await Account.updateOne(
+            { userId: txn.receiverId },
+            { $inc: { balance: txn.amount } }
+          ).session(session);
+
+          await session.commitTransaction();
+          session.endSession();
+        } catch (error) {
+          await session.abortTransaction();
+          session.endSession();
+          console.error(error);
+          return res.status(500).send("Error while money transfer via webhook");
+        }
+      }
+
+      await Transaction.updateOne(
+        { orderId: orderId },
+        { status: "SUCCESS", rzpPaymentId: paymentId }
+      );
     }
 
     if (status == "failed") {
-      txn.status = "FAILED";
+      await Transaction.updateOne(
+        { orderId: orderId },
+        { status: "FAILED", rzpPaymentId: paymentId }
+      );
     }
-
-    await txn.save();
 
     return res.status(200).send("OK");
   } catch (err) {
@@ -308,3 +306,5 @@ accountrouter.post("/payment/webhook", async (req, res) => {
     return res.status(500).send("Error");
   }
 });
+
+module.exports = accountrouter;

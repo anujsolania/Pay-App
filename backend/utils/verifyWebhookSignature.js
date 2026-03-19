@@ -1,6 +1,6 @@
 const crypto = require("crypto");
 
-export const verifyWebhookSignature = (req) => {
+const verifyWebhookSignature = (req) => {
   const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
   const expectedSign = crypto
@@ -12,3 +12,5 @@ export const verifyWebhookSignature = (req) => {
 
   return expectedSign == receivedSign;
 };
+
+module.exports = verifyWebhookSignature;
