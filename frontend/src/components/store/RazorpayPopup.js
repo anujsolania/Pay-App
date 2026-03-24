@@ -1,7 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const openRazorpay = (data, navigate) => {
+const openRazorpay = (data, navigate, oldBalance, PollingforBalanceUpdate) => {
   const options = {
     key: data.key,
     amount: data.order.amount,
@@ -28,6 +28,8 @@ const openRazorpay = (data, navigate) => {
           alert("Payment verification failed");
         }
         navigate("/dashboard");
+
+        PollingforBalanceUpdate(oldBalance);
       } catch (error) {
         console.error("Error verifying payment:", error);
         alert("An error occurred during payment verification");

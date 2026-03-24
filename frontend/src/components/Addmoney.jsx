@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { MyContext } from "./store/Context";
 
 const Addmoney = () => {
-  const { fetchData } = useContext(MyContext);
+  const { fetchData, balance, PollingforBalanceUpdate } = useContext(MyContext);
   const [amt, setamt] = useState("");
   const [loading, setloading] = useState(false);
 
@@ -32,7 +32,8 @@ const Addmoney = () => {
 
     console.log(response.data);
 
-    openRazorpay(response.data, navigate);
+    const oldBalance = balance;
+    openRazorpay(response.data, navigate, oldBalance, PollingforBalanceUpdate);
 
     setloading(false);
 

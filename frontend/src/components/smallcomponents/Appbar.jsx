@@ -1,28 +1,36 @@
-import { useContext, useState } from "react"
-import Navabar from "./Navbar"
-import { MyContext } from "../store/Context"
+import { useContext, useState } from "react";
+import Navabar from "./Navbar";
+import { MyContext } from "../store/Context";
 
 export function Appbar() {
-    const {firstname,lastname, fetchData} = useContext(MyContext)
+  const { firstname, lastname } = useContext(MyContext);
 
-    const[shownav,setshownav] = useState(false)
+  const [shownav, setshownav] = useState(false);
 
-    const name = firstname + " " + lastname
-    return (
-    <div style={{ padding: "2%"}}  >
-        <Navabar setshownav={setshownav} name={name} style={{right: shownav ? "0" : "-40vw"}}  ></Navabar>
-        <div className="flex w-full" > 
-        <div className="w-[50%] text-2xl font-extrabold" >
-            <h1>Payments App</h1>
+  const name = firstname + " " + lastname;
+  return (
+    <div style={{ padding: "2%" }}>
+      <Navabar
+        setshownav={setshownav}
+        name={name}
+        style={{ right: shownav ? "0" : "-40vw" }}
+      ></Navabar>
+      <div className="flex w-full">
+        <div className="w-[50%] text-2xl font-extrabold">
+          <h1>Payments App</h1>
         </div>
-        <div className="w-[50%] flex items-center justify-end gap-3" >
-            <p>Hello, {name}</p>
-            <button className="w-8 h-8 border rounded"
+        <div className="w-[50%] flex items-center justify-end gap-3">
+          <p>Hello, {name}</p>
+          <button
+            className="w-8 h-8 border rounded"
             onClick={() => {
-                setshownav(true)
-            }} ><i className="ri-menu-line"></i> </button>
+              setshownav(true);
+            }}
+          >
+            <i className="ri-menu-line"></i>{" "}
+          </button>
         </div>
-        </div> 
+      </div>
     </div>
-    )
+  );
 }

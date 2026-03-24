@@ -9,9 +9,13 @@ export function Sendmoney() {
   const [loading, setloading] = useState(false);
   const [amount, setamount] = useState("");
 
-  const { fetchData } = useContext(MyContext);
-
-  const { receiverName, setreceiverName } = useContext(MyContext);
+  const {
+    fetchData,
+    receiverName,
+    setreceiverName,
+    balance,
+    PollingforBalanceUpdate,
+  } = useContext(MyContext);
 
   const navigate = useNavigate();
 
@@ -49,7 +53,8 @@ export function Sendmoney() {
       }
     );
 
-    openRazorpay(response.data, navigate);
+    const oldBalance = balance;
+    openRazorpay(response.data, navigate, oldBalance, PollingforBalanceUpdate);
 
     setloading(false);
 

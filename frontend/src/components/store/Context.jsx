@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 export const MyContext = createContext();
 
@@ -18,7 +19,7 @@ export function MyProvider({ children }) {
       if (!token) {
         console.log("No token found!");
 
-        return;
+        return null;
       }
 
       const response = await axios.get(
@@ -33,10 +34,36 @@ export function MyProvider({ children }) {
       setbalance(response.data.balance);
       setfirstname(response.data.firstname);
       setlastname(response.data.lastname);
+      return response.data.balance;
     } catch (error) {
       console.error("Error fetching data:", error);
+      return null;
     }
   }
+
+  const PollingforBalanceUpdate = async (oldBalance) => {
+    let attempts = 0;
+    const maxAttempts = 30;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        attempts++;
+        const currentBalance = await fetchData();
+        console.log("oldBalance", oldBalance);
+        console.log("Balance", currentBalance);
+
+        if (currentBalance != oldBalance && attempts <= maxAttempts) {
+          toast.success("Balance updated!");
+          clearInterval(pollInterval);
+        } else if (attempts >= maxAttempts) {
+          console.log("MaxAttempts reached but balance never got updated");
+          clearInterval(pollInterval);
+        }
+      } catch (error) {
+        console.error("Error while PollingforBalanceUpdate", error);
+      }
+    }, 2000);
+  };
 
   //fetch users for dashboard page
   async function fetchUsers() {
@@ -86,6 +113,7 @@ export function MyProvider({ children }) {
         setallusers,
         fetchData,
         fetchUsers,
+        PollingforBalanceUpdate,
       }}
     >
       {children}
