@@ -18,26 +18,35 @@ const Addmoney = () => {
       return;
     }
 
-    const response = await axios.post(
-      `${import.meta.env.VITE_URL}/api/v1/account/add-money`,
-      {
-        amount: Number(amt),
-      },
-      {
-        headers: {
-          Authorization: localStorage.getItem("token"),
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_URL}/api/v1/account/add-money`,
+        {
+          amount: Number(amt),
         },
-      }
-    );
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+        }
+      );
 
-    console.log(response.data);
+      console.log(response.data);
 
-    const oldBalance = balance;
-    openRazorpay(response.data, navigate, oldBalance, PollingforBalanceUpdate);
+      const oldBalance = balance;
+      openRazorpay(
+        response.data,
+        navigate,
+        oldBalance,
+        PollingforBalanceUpdate
+      );
 
-    setloading(false);
-
-    fetchData();
+      setloading(false);
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.mssg || "Something went wrong - addmoney");
+      setloading(false);
+    }
   };
 
   return (

@@ -53,7 +53,11 @@ accountrouter.post("/add-money", validateReq, async (req, res) => {
 
   try {
     if (!amount || amount <= 0 || amount < 1) {
-      return res.json({ success: false, message: "Invalid amount" });
+      return res.status(400).json({ success: false, mssg: "Invalid amount" });
+    }
+
+    if (amount >= 100000) {
+      return res.status(400).json({ mssg: "Enter less amount i.e < 1lakh" });
     }
     const options = {
       amount: amount * 100,
@@ -92,7 +96,7 @@ accountrouter.post("/add-money", validateReq, async (req, res) => {
     console.log("error is:", err);
     res
       .status(500)
-      .json({ success: false, message: "Some Server Error while addmoney" });
+      .json({ success: false, mssg: "Some Server Error while addmoney" });
   }
 });
 
@@ -135,7 +139,11 @@ accountrouter.patch("/transfer", validateReq, async (req, res) => {
   const { rId, amount } = req.body;
 
   if (!rId || !amount) {
-    return res.json({ mssg: "Missing required fields" });
+    return res.status(400).json({ mssg: "Missing required fields" });
+  }
+
+  if (amount >= 100000) {
+    return res.status(400).json({ mssg: "Enter less amount i.e < 1lakh" });
   }
 
   try {
@@ -170,7 +178,7 @@ accountrouter.patch("/transfer", validateReq, async (req, res) => {
       status: "PENDING",
     });
 
-    return res.json({
+    return res.status(200).json({
       order: order,
       key: process.env.RAZORPAY_KEY_ID,
     });
