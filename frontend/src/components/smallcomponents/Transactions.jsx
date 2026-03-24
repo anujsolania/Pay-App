@@ -20,15 +20,21 @@ function getTransactionDetails(txn, userId) {
   if (!txn.receiverId) {
     mssg = "Added Money to Wallet";
     iconCharacter = txn.userId?.firstname.charAt(0).toUpperCase();
-    sign = "+";
+    txn.status == "EXPIRED" || txn.status == "FAILED"
+      ? (sign = "!")
+      : (sign = "+");
   } else if (isSender && txn.receiverId) {
     mssg = `Sent to ${`${txn.receiverId?.firstname} ${txn.receiverId?.lastname}`}`;
     iconCharacter = txn.receiverId?.firstname.charAt(0).toUpperCase();
-    sign = "-";
+    txn.status == "EXPIRED" || txn.status == "FAILED"
+      ? (sign = "!")
+      : (sign = "-");
   } else {
     mssg = `Received from ${`${txn.userId?.firstname} ${txn.userId?.lastname}`}`;
     iconCharacter = txn.userId?.firstname.charAt(0).toUpperCase();
-    sign = "+";
+    txn.status == "EXPIRED" || txn.status == "FAILED"
+      ? (sign = "!")
+      : (sign = "+");
   }
 
   return {
@@ -69,11 +75,15 @@ export const Transactions = ({
                   {/* date and amount div */}
                   <div className="flex flex-1 justify-between items-center">
                     <p>
-                      {formattedDate} {formattedTime}
+                      {formattedDate} {formattedTime} {txn.status}
                     </p>
                     <div
                       className={`font-semibold text-lg ${
-                        sign === "+" ? "text-green-500" : "text-red-500"
+                        sign === "+"
+                          ? "text-green-500"
+                          : sign === "-"
+                          ? "text-red-500"
+                          : "text-black"
                       }`}
                     >
                       {sign} {txn.amount}
