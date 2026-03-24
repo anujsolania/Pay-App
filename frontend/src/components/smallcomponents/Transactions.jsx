@@ -55,7 +55,6 @@ export const Transactions = ({
   return (
     <>
       <div className="flex flex-col gap-2">
-        {console.log("FILTERED", allTransactions)}
         {allTransactions && allTransactions.length > 0 ? (
           allTransactions.map((txn) => {
             const { iconCharacter, mssg, sign, formattedDate, formattedTime } =
@@ -64,7 +63,7 @@ export const Transactions = ({
               <div key={txn._id} className="px-10 py-5 border rounded">
                 <div className="flex flex-row w-full">
                   {/* icon and mssg div */}
-                  <div className="flex flex-row flex-2 gap-28 items-center">
+                  <div className="flex flex-row flex-1 gap-28 items-center">
                     <button className="w-10 h-10 border rounded-full bg-gray-600 text-white">
                       {iconCharacter}
                     </button>
@@ -73,12 +72,15 @@ export const Transactions = ({
                     </div>
                   </div>
                   {/* date and amount div */}
-                  <div className="flex flex-1 justify-between items-center">
-                    <p>
-                      {formattedDate} {formattedTime} {txn.status}
-                    </p>
+                  <div className="flex flex-1 items-center">
+                    <div className="flex flex-1">
+                      {formattedDate} {formattedTime}
+                    </div>
+                    <div className="flex flex-1 justify-center">
+                      {txn.status}
+                    </div>
                     <div
-                      className={`font-semibold text-lg ${
+                      className={`flex flex-1 justify-end font-semibold text-lg ${
                         sign === "+"
                           ? "text-green-500"
                           : sign === "-"
