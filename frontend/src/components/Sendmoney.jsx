@@ -9,13 +9,8 @@ export function Sendmoney() {
   const [loading, setloading] = useState(false);
   const [amount, setamount] = useState("");
 
-  const {
-    fetchData,
-    receiverName,
-    setreceiverName,
-    balance,
-    PollingforBalanceUpdate,
-  } = useContext(MyContext);
+  const { receiverName, setreceiverName, balance, PollingforBalanceUpdate } =
+    useContext(MyContext);
 
   const navigate = useNavigate();
 
@@ -40,27 +35,38 @@ export function Sendmoney() {
     if (amount <= 0 || amount === "") {
       return toast.error("Enter a valid amount");
     }
-    const response = await axios.patch(
-      `${import.meta.env.VITE_URL}/api/v1/account/transfer`,
-      {
-        rId,
-        amount,
-      },
-      {
-        headers: {
-          Authorization: token,
+
+    try {
+      const response = await axios.patch(
+        `${import.meta.env.VITE_URL}/api/v1/account/transfer`,
+        {
+          rId,
+          amount,
         },
-      }
-    );
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      const oldBalance = balance;
 
-    const oldBalance = balance;
-    openRazorpay(response.data, navigate, oldBalance, PollingforBalanceUpdate);
+      // console.log("reched here!!");
+      openRazorpay(
+        response.data,
+        navigate,
+        oldBalance,
+        PollingforBalanceUpdate
+      );
 
-    setloading(false);
-
-    // toast.success(response.data.mssg)
-    fetchData();
-    // navigate("/dashboard")
+      setloading(false);
+    } catch (error) {
+      console.error(error);
+      alert(
+        error.response?.data?.mssg || "Something went wrong, transferMoneyFn"
+      );
+      setloading(false);
+    }
   };
 
   useEffect(() => {

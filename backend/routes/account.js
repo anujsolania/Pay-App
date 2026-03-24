@@ -141,12 +141,16 @@ accountrouter.patch("/transfer", validateReq, async (req, res) => {
   try {
     const receiver = await User.findById(rId);
     if (!receiver) {
-      return res.json({ mssg: "Receiver does not exist" });
+      return res.status(400).json({ mssg: "Receiver does not exist" });
     }
 
     const senderAccount = await Account.findOne({ userId: senderId });
-    if (!senderAccount || senderAccount.balance < amount) {
-      return res.json({ mssg: "Insufficient balance" });
+
+    if (!senderAccount) {
+      return res.status(400).json({ mssg: "Sender Account not found" });
+    }
+    if (senderAccount.balance < amount) {
+      return res.status(400).json({ mssg: "Insufficient balance" });
     }
 
     const options = {

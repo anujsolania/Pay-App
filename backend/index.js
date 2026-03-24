@@ -42,7 +42,7 @@ setInterval(async () => {
         }
       );
 
-      console.log("ResOfRzpApi", res);
+      // console.log("ResOfRzpApi", res);
 
       const status = res.data.status;
 
