@@ -103,9 +103,11 @@ export const Transactions = ({
         )}{" "}
       </div>
       {/* loadMore....div */}
-      <div ref={loaderRef} className="text-gray-500 text-center m-5">
-        {hasMore ? "loading transactions...." : "no more transactions . . ."}
-      </div>
+      {allTransactions && allTransactions.length > 0 && (
+        <div ref={loaderRef} className="text-gray-500 text-center m-5">
+          {hasMore ? "loading transactions...." : "no more transactions . . ."}
+        </div>
+      )}
     </>
   );
 };
