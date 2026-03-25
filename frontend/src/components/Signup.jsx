@@ -111,6 +111,7 @@ export function Signup() {
                   toast(response.data.mssg);
                 }
               } catch (error) {
+                setloading(false);
                 toast.error(error.response.data.error);
               }
             }}

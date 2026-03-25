@@ -37,6 +37,7 @@ export function Signin() {
         toast(response.data.mssg);
       }
     } catch (error) {
+      setloading(false);
       toast.error(error.response.data.error || error.response.data.message);
     }
   }
