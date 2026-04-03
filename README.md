@@ -27,8 +27,6 @@ To ensure the app scales securely and remains fast as the user base grows, the b
 
 ## 📸 App Screenshots
 
-*(Note: Create an `assets` folder in your project root and place the below images there as `dashboard.png`, `razorpay.png`, and `transactions.png` for them to show up on GitHub)*
-
 | Dashboard & Sending Money | Razorpay Top-Up | Transaction History |
 |:---:|:---:|:---:|
 | ![Dashboard](./assets/dashboard.png) | ![Razorpay Modal](./assets/razorpay.png) | ![Transactions](./assets/transactions.png) |
